@@ -4,16 +4,18 @@ import {
 	Header,
 	Menu,
 	Popover,
-    HoverCard,
+	HoverCard,
 	TextInput,
 	Text,
 	ActionIcon,
 	Overlay,
+	Anchor,
+	MediaQuery,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import { SearchSheet } from "./SearchSheet";
-import { IconSearch, IconShoppingCart, IconUser } from "@tabler/icons";
+import { IconPencil, IconSearch, IconUser } from "@tabler/icons";
 import { useNavigate } from "react-router-dom";
 
 const NavTitle = styled(Title)`
@@ -58,6 +60,8 @@ interface Props {
 	 * Called when signup is clicked
 	 */
 	onSignupClick(): void;
+
+	onSearch(searchEntry: string): void;
 }
 
 /**
@@ -80,11 +84,8 @@ export function TopNav(props: Props) {
 
 			<Menu.Dropdown>
 				<Menu.Label>My Account</Menu.Label>
-				<Menu.Item component={Link} to="/account/i-want-to-sell">
-					I want to sell
-				</Menu.Item>
-				<Menu.Item component={Link} to="/account/order-history">
-					Order history
+				<Menu.Item component={Link} to="/account/listings">
+					My Listings
 				</Menu.Item>
 				<Menu.Item component={Link} to="/account/message-center">
 					Message center
@@ -113,9 +114,23 @@ export function TopNav(props: Props) {
 
 	return (
 		<TopNavWrapper height={60} p="xs">
-			<LeftContent>
-				<NavTitle>Siteline</NavTitle>
-			</LeftContent>
+			<MediaQuery
+				smallerThan={"xs"}
+				styles={{ display: "none !important" }}
+			>
+				<LeftContent>
+					<NavTitle>
+						<Anchor
+							inherit
+							onClick={() => {
+								navigate(`home/`);
+							}}
+						>
+							Siteline
+						</Anchor>
+					</NavTitle>
+				</LeftContent>
+			</MediaQuery>
 			<CenterContent>
 				<TextInput
 					icon={<IconSearch />}
@@ -134,22 +149,19 @@ export function TopNav(props: Props) {
 						setIsSearchDrawerOpen(false);
 						searchInputRef.current?.blur();
 					}}
-					onSearch={(searchEntry) => {
-						// set
-					}}
+					onSearch={props.onSearch}
 					onChange={setSearchEntry}
 				/>
 			</CenterContent>
 			<RightContent>
-				
-                <ActionIcon
-                    component={Link}
-                    to="/cart/"
-                    size="lg"
-                    title="my cart"
-                >
-                    <IconShoppingCart />
-                </ActionIcon>
+				<ActionIcon
+					component={Link}
+					to="/post/"
+					size="lg"
+					title="make a listing"
+				>
+					<IconPencil />
+				</ActionIcon>
 				{props.isLoggedIn ? isLoggedInMenu : defaultMenu}
 			</RightContent>
 		</TopNavWrapper>

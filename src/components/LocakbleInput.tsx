@@ -13,7 +13,12 @@ export function LockableInput(props: LockableInputProps) {
 			{...props}
 			disabled={isLocked}
 			rightSection={
-				<ActionIcon size="lg" onClick={() => setIsLocked(!isLocked)}>
+				<ActionIcon
+					size="lg"
+					variant="subtle"
+					color="blue"
+					onClick={() => setIsLocked(!isLocked)}
+				>
 					{isLocked ? <IconLock /> : <IconLockOpen />}
 				</ActionIcon>
 			}

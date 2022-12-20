@@ -1,22 +1,31 @@
-import { Alert } from "@mantine/core";
+import { Alert, createStyles } from "@mantine/core";
 import * as React from "react";
 
 interface Message {
-	timestamp: string;
+	timestamp: number;
 	message: string;
-	from: string;
 	user: string;
+	isMe: boolean;
 }
 
-/**
- *
- */
+const useStyles = createStyles((theme, _params, getRef) => ({
+	myMessage: {
+		marginLeft: "40%",
+	},
+	otherMessage: {
+		marginRight: "40%",
+	},
+}));
+
 export function Chat(props: Message) {
+	const { classes } = useStyles();
+
 	return (
 		<Alert
-			title={props.timestamp}
+			className={props.isMe ? classes.myMessage : classes.otherMessage}
+			title={new Date(props.timestamp).toISOString()}
 			radius="xl"
-			color={props.from === props.user ? "dark" : undefined}
+			color={props.isMe ? undefined : "dark"}
 		>
 			{props.message}
 		</Alert>

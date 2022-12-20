@@ -1,13 +1,18 @@
 import * as React from "react";
 import { Image, Paper } from "@mantine/core";
 
-export function ListingDetailImage() {
+interface Props {
+	imageSrc: string;
+}
+
+export function ListingDetailImage(props: Props) {
 	return (
 		<Paper shadow="xs" radius="lg" p="xl" m="sm">
 			<Image
-				src="https://s.yimg.com/aah/airgundepot/glock-19-1.gif"
+				src={props.imageSrc}
 				height={400}
 				alt="Norway"
+				withPlaceholder
 			/>
 		</Paper>
 	);

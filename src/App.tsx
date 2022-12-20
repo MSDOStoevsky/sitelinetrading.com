@@ -7,13 +7,13 @@ import { NoPage } from "./scenes/NoPage";
 import { TopNav } from "./components/TopNav";
 import { Listing } from "./scenes/Listing";
 import { AccountHome } from "./scenes/AccountHome";
-import { OrderHistory } from "./scenes/OrderHistory";
+import { MyListings } from "./scenes/MyListings";
 import { MessageCenter } from "./scenes/MessageCenter";
 import { AccountSettings } from "./scenes/AccountSettings";
 import { IWantToSell } from "./scenes/IWantToSell";
 import { LoginDialog } from "./components/LoginDialog";
 import { SignupDialog } from "./components/SignupDialog";
-import { Cart } from "./scenes/Cart";
+import { Post } from "./scenes/Post";
 
 export function App() {
 	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(true);
@@ -21,6 +21,9 @@ export function App() {
 		React.useState<boolean>(false);
 	const [isSignupDialogOpen, setIsSignupDialogOpen] =
 		React.useState<boolean>(false);
+
+	const [searchEntry, setSearchEntry] = React.useState<string>("");
+
 	return (
 		<AppShell
 			padding="xl"
@@ -33,6 +36,7 @@ export function App() {
 					onSignupClick={() => {
 						setIsSignupDialogOpen(true);
 					}}
+					onSearch={setSearchEntry}
 				/>
 			}
 			styles={(theme) => ({
@@ -45,26 +49,33 @@ export function App() {
 			})}
 		>
 			<Routes>
-				<Route index element={<Home />} />
-				<Route path="listings" element={<Listings />} />
+				<Route index element={<Listings searchEntry={searchEntry} />} />
+				<Route path="home" element={<Home />} />
 				<Route path="listings/:id" element={<Listing />} />
-				<Route path="cart" element={<Cart />} />
-				<Route path="account" element={<AccountHome />} />
+				<Route path="post" element={<Post />} />
+				<Route
+					path="account"
+					element={<AccountSettings userId="890MAJL" />}
+				/>
 				<Route
 					path="account/i-want-to-sell"
 					element={<IWantToSell />}
 				/>
 				<Route
-					path="account/order-history"
-					element={<OrderHistory />}
+					path="account/listings"
+					element={<MyListings userId="890MAJL" />}
 				/>
 				<Route
 					path="account/message-center"
-					element={<MessageCenter />}
+					element={<MessageCenter userId="890MAJL" />}
+				/>
+				<Route
+					path="account/message-center/:id"
+					element={<MessageCenter userId="890MAJL" />}
 				/>
 				<Route
 					path="account/account-settings"
-					element={<AccountSettings />}
+					element={<AccountSettings userId="890MAJL" />}
 				/>
 				<Route path="*" element={<NoPage />} />
 			</Routes>

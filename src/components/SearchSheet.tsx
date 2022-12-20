@@ -9,12 +9,17 @@ import {
 	Kbd,
 	Button,
 	Text,
+	Skeleton,
+	Select,
 } from "@mantine/core";
 import styled from "@emotion/styled";
 import _ from "lodash";
 import { useClickOutside } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { IconSearch } from "@tabler/icons";
+import { ApiPaginatedSearchResponse } from "../api/ApiPaginatedSearchResponse";
+import { searchAllProducts } from "../api";
+import { Product } from "../api/Product";
 
 interface Props {
 	isOpen: boolean;
@@ -24,7 +29,12 @@ interface Props {
 	onChange(value: string): void;
 }
 
-const SearchInput = styled(TextInput)``;
+const StyledModal = styled(Modal)`
+	.mantine-Modal-title {
+		margin-right: 9px;
+		flex: 1;
+	}
+`;
 
 const SearchSuggestions = styled(Stack)`
 	padding-top: 1rem;
@@ -50,8 +60,50 @@ const SearchSuggestion = styled.div`
 	}
 `;
 
+const Search = styled.div`
+	display: flex;
+	flex-direction: row;
+
+	.Input {
+		flex: 4;
+
+		input {
+			border-top-right-radius: 0px;
+			border-bottom-right-radius: 0px;
+		}
+	}
+
+	.State {
+		flex: 1;
+
+		input {
+			border-top-left-radius: 0px;
+			border-bottom-left-radius: 0px;
+		}
+	}
+`;
+
 export function SearchSheet(props: Props) {
 	const [searchEntry, setSearchEntry] = React.useState("");
+	const [listingSuggestions, setListingSuggestions] = React.useState<
+		ApiPaginatedSearchResponse<Product> | undefined
+	>(undefined);
+
+	React.useEffect(() => {
+		searchAllProducts({
+			filterExpression: searchEntry ? { title: searchEntry } : undefined,
+			orderBy: {
+				field: "title",
+				order: "DESC",
+			},
+			page: 0,
+			pageSize: 10,
+			select: "*",
+		}).then((data) => {
+			setListingSuggestions(data);
+		});
+	}, [searchEntry]);
+
 	const ref = useClickOutside(() => props.onClose());
 	const navigate = useNavigate();
 
@@ -59,8 +111,51 @@ export function SearchSheet(props: Props) {
 		props.onChange(searchEntry);
 	}, [searchEntry]);
 
+	const renderSearchSuggestions = () => {
+		if (!listingSuggestions) {
+			return (
+				<Center>
+					<Stack>
+						<Text>Nothing to suggest</Text>
+					</Stack>
+				</Center>
+			);
+		} else {
+			return _.map(listingSuggestions.data, (listing) => {
+				return (
+					<SearchSuggestion
+						key={listing._id}
+						onClick={() => {
+							navigate(`listings/${listing._id}`);
+							props.onClose();
+						}}
+					>
+						<Image
+							radius="md"
+							fit="contain"
+							width={150}
+							height={100}
+							src=""
+							alt="Random unsplash image"
+							withPlaceholder
+						/>
+						<Center>
+							<Title
+								order={4}
+								className="search-suggestion-title"
+							>
+								{listing.title}
+							</Title>
+						</Center>
+					</SearchSuggestion>
+				);
+			});
+		}
+	};
+
 	return (
-		<Modal
+		<StyledModal
+			size={"xl"}
 			opened={props.isOpen}
 			onClose={() => {
 				props.onClose();
@@ -70,98 +165,37 @@ export function SearchSheet(props: Props) {
 			overlayBlur={2}
 			withFocusReturn={false}
 			withCloseButton={false}
+			overflow="inside"
+			title={
+				<Search>
+					<TextInput
+						className="Input"
+						placeholder="Search"
+						icon={<IconSearch />}
+						size={"xl"}
+						value={searchEntry}
+						onChange={(event) => {
+							setSearchEntry(event.target.value);
+						}}
+						autoFocus={true}
+						onKeyUp={(event) => {
+							if (event.key === "Enter") {
+								navigate("");
+								props.onSearch(searchEntry);
+								props.onClose();
+							}
+						}}
+					/>
+					<Select
+						className="State"
+						size={"xl"}
+						placeholder="State"
+						data={["MI", "CA", "VT", "ME"]}
+					/>
+				</Search>
+			}
 		>
-			<TextInput
-				placeholder="Search"
-				// SAASAS
-				icon={<IconSearch />}
-				size={"xl"}
-				value={searchEntry}
-				onChange={(event) => {
-					setSearchEntry(event.target.value);
-				}}
-				autoFocus={true}
-				onKeyUp={(event) => {
-					if (event.key === "Enter" && searchEntry) {
-						navigate("listings");
-						props.onSearch(searchEntry);
-						props.onClose();
-					}
-				}}
-			/>
-			<SearchSuggestions>
-				{_.isEmpty(searchEntry) && (
-					// TODO: use search results state
-					<Stack>
-						<Text>
-							Start typing to being your search, or select from
-							these categories:
-						</Text>
-
-						<Button variant="subtle">Rifles</Button>
-						<Button variant="subtle">Shotguns</Button>
-						<Button variant="subtle">Handguns</Button>
-					</Stack>
-				)}
-				{_.isEmpty(["a"]) && (
-					// TODO: use search results state
-					<Center>
-						<Title order={2}>No Results Found</Title>
-					</Center>
-				)}
-				{!_.isEmpty(props.searchEntry) &&
-					_.map(dummyListings, (dummyListing) => {
-						return (
-							<>
-								<SearchSuggestion
-									onClick={() => {
-										navigate(`listings/${dummyListing.id}`);
-										props.onClose();
-									}}
-								>
-									<Image
-										radius="md"
-										fit="contain"
-										width={150}
-										height={100}
-										src=""
-										alt="Random unsplash image"
-										withPlaceholder
-									/>
-									<Center>
-										<Title
-											order={4}
-											className="search-suggestion-title"
-										>
-											{dummyListing.title}
-										</Title>
-									</Center>
-								</SearchSuggestion>
-							</>
-						);
-					})}
-
-				{!_.isEmpty(props.searchEntry) && (
-					<Center>
-						<Text>
-							Or press <Kbd>Enter</Kbd> to search
-						</Text>
-					</Center>
-				)}
-			</SearchSuggestions>
-		</Modal>
+			<SearchSuggestions>{renderSearchSuggestions()}</SearchSuggestions>
+		</StyledModal>
 	);
 }
-
-const dummyListings = [
-	{
-		id: "123456",
-		thumb: "",
-		title: "Glock 19",
-	},
-	{
-		id: "654321",
-		thumb: "",
-		title: "B&T TP9",
-	},
-];
