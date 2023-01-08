@@ -1,17 +1,19 @@
-
+export type Order = "ASC" | "DESC";
 /**
  * The order expression.
  */
  export interface OrderExpression {
 	field: string;
-	order: "ASC" | "DESC";
+	order: Order;
 }
+
+export type FilterExpression = Record<string, string | boolean>;
 
 /**
  * The product search expression.
  */
 export interface SearchExpression {
-	filterExpression?: Record<string, string>;
+	filterExpression?: FilterExpression;
 	select: string[] | "*";
 	orderBy: OrderExpression;
 	page: number;

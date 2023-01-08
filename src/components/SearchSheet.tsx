@@ -11,6 +11,8 @@ import {
 	Text,
 	Skeleton,
 	Select,
+	ScrollArea,
+	Loader,
 } from "@mantine/core";
 import styled from "@emotion/styled";
 import _ from "lodash";
@@ -20,13 +22,17 @@ import { IconSearch } from "@tabler/icons";
 import { ApiPaginatedSearchResponse } from "../api/ApiPaginatedSearchResponse";
 import { searchAllProducts } from "../api";
 import { Product } from "../api/Product";
+import { STATE_ABBREVIATIONS } from "../utils/constants";
+import { SearchEntry } from "../App";
+import { LoadingPage } from "../scenes/LoadingPage";
+import { Search } from "../utils/commonStyles";
 
 interface Props {
 	isOpen: boolean;
-	searchEntry: string;
+	searchEntry: SearchEntry;
 	onClose(): void;
-	onSearch(value: string): void;
-	onChange(value: string): void;
+	onSearch(value: SearchEntry): void;
+	onChange(value: SearchEntry): void;
 }
 
 const StyledModal = styled(Modal)`
@@ -60,38 +66,18 @@ const SearchSuggestion = styled.div`
 	}
 `;
 
-const Search = styled.div`
-	display: flex;
-	flex-direction: row;
-
-	.Input {
-		flex: 4;
-
-		input {
-			border-top-right-radius: 0px;
-			border-bottom-right-radius: 0px;
-		}
-	}
-
-	.State {
-		flex: 1;
-
-		input {
-			border-top-left-radius: 0px;
-			border-bottom-left-radius: 0px;
-		}
-	}
-`;
-
 export function SearchSheet(props: Props) {
-	const [searchEntry, setSearchEntry] = React.useState("");
+	const [text, setText] = React.useState(props.searchEntry.text);
+	const [state, setState] = React.useState<string>(props.searchEntry.state);
+	const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [listingSuggestions, setListingSuggestions] = React.useState<
 		ApiPaginatedSearchResponse<Product> | undefined
 	>(undefined);
 
 	React.useEffect(() => {
+		setIsLoading(true);
 		searchAllProducts({
-			filterExpression: searchEntry ? { title: searchEntry } : undefined,
+			filterExpression: { title: text, state: state },
 			orderBy: {
 				field: "title",
 				order: "DESC",
@@ -99,17 +85,16 @@ export function SearchSheet(props: Props) {
 			page: 0,
 			pageSize: 10,
 			select: "*",
-		}).then((data) => {
-			setListingSuggestions(data);
-		});
-	}, [searchEntry]);
+		})
+			.then((data) => {
+				setListingSuggestions(data);
+			})
+			.finally(() => setIsLoading(false));
+		props.onChange({ text, state });
+	}, [text, state]);
 
 	const ref = useClickOutside(() => props.onClose());
 	const navigate = useNavigate();
-
-	React.useEffect(() => {
-		props.onChange(searchEntry);
-	}, [searchEntry]);
 
 	const renderSearchSuggestions = () => {
 		if (!listingSuggestions) {
@@ -167,35 +152,53 @@ export function SearchSheet(props: Props) {
 			withCloseButton={false}
 			overflow="inside"
 			title={
-				<Search>
+				<Search
+					onKeyUp={(event) => {
+						if (event.key === "Enter") {
+							props.onSearch({
+								text: text,
+								state: state,
+							});
+							navigate("");
+							props.onClose();
+						}
+					}}
+				>
 					<TextInput
 						className="Input"
 						placeholder="Search"
 						icon={<IconSearch />}
 						size={"xl"}
-						value={searchEntry}
+						value={text}
 						onChange={(event) => {
-							setSearchEntry(event.target.value);
+							setText(event.target.value);
 						}}
 						autoFocus={true}
-						onKeyUp={(event) => {
-							if (event.key === "Enter") {
-								navigate("");
-								props.onSearch(searchEntry);
-								props.onClose();
-							}
-						}}
 					/>
 					<Select
+						value={state}
 						className="State"
 						size={"xl"}
 						placeholder="State"
-						data={["MI", "CA", "VT", "ME"]}
+						data={STATE_ABBREVIATIONS}
+						onChange={(value) => {
+							setState(value || "");
+						}}
 					/>
 				</Search>
 			}
 		>
-			<SearchSuggestions>{renderSearchSuggestions()}</SearchSuggestions>
+			<Center>
+				<Text>
+					Select from below, or press <Kbd>Enter</Kbd> to search
+				</Text>
+			</Center>
+			<ScrollArea style={{ height: "calc(100vh - 210px)" }}>
+				<SearchSuggestions>
+					{isLoading ? <LoadingPage /> : null}
+					{renderSearchSuggestions()}
+				</SearchSuggestions>
+			</ScrollArea>
 		</StyledModal>
 	);
 }

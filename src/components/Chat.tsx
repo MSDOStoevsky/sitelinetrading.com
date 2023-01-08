@@ -23,7 +23,10 @@ export function Chat(props: Message) {
 	return (
 		<Alert
 			className={props.isMe ? classes.myMessage : classes.otherMessage}
-			title={new Date(props.timestamp).toISOString()}
+			title={`${props.user} ${new Intl.DateTimeFormat("en-US", {
+				dateStyle: "short",
+				timeStyle: "short",
+			}).format(props.timestamp)}`}
 			radius="xl"
 			color={props.isMe ? undefined : "dark"}
 		>

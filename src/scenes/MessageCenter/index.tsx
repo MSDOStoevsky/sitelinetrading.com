@@ -1,10 +1,6 @@
 import * as React from "react";
 import {
-	Tabs,
-	Group,
-	Divider,
 	Stack,
-	Indicator,
 	ActionIcon,
 	Textarea,
 	createStyles,
@@ -13,18 +9,25 @@ import {
 	TextInput,
 	Button,
 	ScrollArea,
-	Skeleton,
 } from "@mantine/core";
 import { useLocation } from "react-router-dom";
 import { IconPencil, IconSend } from "@tabler/icons";
 import _ from "lodash";
-import { Chat } from "../components/Chat";
+import { Chat } from "../../components/Chat";
 import styled from "@emotion/styled";
-import { BaseProps } from "../utils/BaseProps";
+import { BaseProps } from "../../utils/BaseProps";
 import { useNavigate, useParams } from "react-router-dom";
-import { Thread } from "../api/Thread";
-import { getThread, postMessage, searchThreads } from "../api";
-import { SearchExpression } from "../api/SearchExpression";
+import { Thread } from "../../api/Thread";
+import {
+	getMe,
+	getThread,
+	postMessage,
+	searchThreads,
+	startThread,
+} from "../../api";
+import { SearchExpression } from "../../api/SearchExpression";
+import { User } from "../../api/User";
+import { InputButtonPair } from "../../components/InputButtonPair";
 
 const MessageCenterWrapper = styled.div`
 	height: 100%;
@@ -48,42 +51,62 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 	},
 }));
 
-const UserReplyForm = styled.div`
-	display: flex;
-	gap: 1rem;
-
-	.ReplyForm {
-		flex: 1;
+function getTargetUserIdFromThread(
+	thread: Thread | undefined,
+	userId: string
+): string | undefined {
+	if (!thread) {
+		return undefined;
 	}
-`;
+	return thread.userIds[thread.userIds.indexOf(userId) === 1 ? 0 : 1];
+}
+
+interface Props extends BaseProps {
+	myId: string;
+}
 
 /**
  * Message center
  */
-export function MessageCenter(props: BaseProps) {
+export function MessageCenter(props: Props) {
 	const { classes } = useStyles();
 	const { id } = useParams();
 	const search = useLocation().search;
-	const ref = new URLSearchParams(search).get("ref");
-	const targetUserId = new URLSearchParams(search).get("user");
 	const navigate = useNavigate();
-
-	const [isLoading, setIsLoading] = React.useState<boolean>(true);
+	const refQueryParam = new URLSearchParams(search).get("ref");
+	const userQueryParam = new URLSearchParams(search).get("user");
+	const [thread, setThread] = React.useState<Thread | undefined>(undefined);
+	// const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [message, setMessage] = React.useState<string>(
-		ref ? `Regarding ${ref}` : ""
+		refQueryParam ? `Regarding ${refQueryParam}...` : ""
 	);
+	const viewportRef = React.useRef<HTMLDivElement | null>();
+
 	const [availableThreads, setAvailableThreads] = React.useState<
-		undefined | Array<{ _id: string; user1: string; user2: string }>
+		undefined | Array<Thread>
 	>(undefined);
+
+	const onViewportRefAvailable = React.useCallback(
+		(node: HTMLDivElement | null) => {
+			if (viewportRef.current) {
+				viewportRef.current.scrollTo({
+					top: viewportRef.current.scrollHeight,
+					behavior: "smooth",
+				});
+			}
+
+			if (node !== null) {
+				viewportRef.current = node;
+			}
+		},
+		[]
+	);
 
 	const [searchExpression, setSearchExpression] =
 		React.useState<SearchExpression>({
 			page: 0,
 			pageSize: 50,
-			filterExpression: {
-				user1: props.userId,
-				user2: props.userId,
-			},
+			filterExpression: {},
 			orderBy: {
 				field: "",
 				order: "DESC",
@@ -91,55 +114,48 @@ export function MessageCenter(props: BaseProps) {
 			select: "*",
 		});
 
-	/*
-	{
-		id: "123456XPOL",
-		user1: "890MAJL",
-		user2: "257AKPR",
-		chat: [
-			{
-				id: "890MAJL",
-				timestamp: Date.now(),
-				message: "Some words",
-			},
-			{
-				id: "257AKPR",
-				timestamp: Date.now(),
-				message: "Some words",
-			},
-		],
-	}*/
-	const [thread, setThread] = React.useState<Thread | undefined>(undefined);
+	const targetUserId =
+		getTargetUserIdFromThread(thread, props.myId) || userQueryParam;
 
 	React.useEffect(() => {
 		loadThread();
-	}, []);
+	}, [id]);
 
 	React.useEffect(() => {
 		loadAvailableThreads();
 	}, [searchExpression]);
 
-	async function loadAvailableThreads() {
-		if (!id) {
-			return;
-		}
+	React.useEffect(() => {
+		const foundThread = _.find(availableThreads, (availableThread) => {
+			return _.includes(availableThread.userIds, userQueryParam);
+		});
 
+		if (!id && foundThread) {
+			navigate(
+				`/account/message-center/${foundThread._id}?ref=${refQueryParam}`
+			);
+		}
+	}, [availableThreads]);
+
+	async function loadAvailableThreads() {
 		try {
 			setAvailableThreads((await searchThreads(searchExpression)).data);
 		} catch (error) {
+			console.log(error);
 		} finally {
 			//loadThread();
-			setIsLoading(false);
+			// setIsLoading(false);
 		}
 	}
 
 	async function loadThread() {
 		if (!id) {
+			setThread(undefined);
 			return;
 		}
 
 		try {
-			setThread(await getThread(id));
+			setThread((await getThread(id)).data);
 		} catch (error) {
 		} finally {
 			//loadThread();
@@ -150,7 +166,28 @@ export function MessageCenter(props: BaseProps) {
 		if (!id && !targetUserId) {
 			return;
 		}
-		await postMessage(id, { message });
+
+		try {
+			if (!id && targetUserId) {
+				await startThread({
+					userIds: [props.myId, targetUserId],
+					chat: [
+						{
+							userId: props.myId,
+							message,
+						},
+					],
+				});
+			} else if (id) {
+				await postMessage(id, {
+					userId: props.myId,
+					message,
+				});
+			}
+		} finally {
+			loadThread();
+			setMessage("");
+		}
 	}
 
 	return (
@@ -159,37 +196,33 @@ export function MessageCenter(props: BaseProps) {
 				<Paper p="md" withBorder>
 					<Stack>
 						<TextInput placeholder="Filter" />
-						{!id && targetUserId ? (
+						{!id && userQueryParam ? (
 							<Button
 								variant="filled"
 								fullWidth
 								rightIcon={<IconPencil />}
 							>
-								{targetUserId}
+								{userQueryParam}
 							</Button>
 						) : null}
 						{_.map(availableThreads, (thread) => {
-							const otherUser =
-								thread.user1 === props.userId
-									? thread.user2
-									: thread.user1;
+							const threadId = thread._id;
+							const targetUserIdFromThread =
+								getTargetUserIdFromThread(thread, props.myId)!;
 							return (
 								<Button
-									key={thread._id}
+									key={threadId}
 									variant={
-										thread.user1 === id ||
-										thread.user2 === id
-											? "filled"
-											: "subtle"
+										threadId === id ? "filled" : "subtle"
 									}
 									fullWidth
 									onClick={() =>
 										navigate(
-											`/account/message-center/${thread}`
+											`/account/message-center/${threadId}`
 										)
 									}
 								>
-									{otherUser}
+									{targetUserIdFromThread}
 								</Button>
 							);
 						})}
@@ -197,7 +230,9 @@ export function MessageCenter(props: BaseProps) {
 				</Paper>
 			</MediaQuery>
 			<MessageView>
-				<ChatWindow>
+				<ChatWindow
+					viewportRef={(node) => onViewportRefAvailable(node)}
+				>
 					<Stack>
 						{thread &&
 							_(thread.chat)
@@ -208,18 +243,22 @@ export function MessageCenter(props: BaseProps) {
 											key={_.uniqueId("chat")}
 											timestamp={chat.timestamp}
 											message={chat.message}
-											user={"sitelinefirearmsllc"}
-											isMe={chat.userId === props.userId}
+											user={chat.userId}
+											isMe={chat.userId === props.myId}
 										/>
 									);
 								})
 								.value()}
 					</Stack>
 				</ChatWindow>
-				<UserReplyForm>
+				<InputButtonPair>
 					<Textarea
 						className="ReplyForm"
-						placeholder="Reply"
+						placeholder={
+							targetUserId
+								? `Message user ${targetUserId}`
+								: "No user to send to"
+						}
 						value={message}
 						onChange={(event) => setMessage(event.target.value)}
 					/>
@@ -234,7 +273,7 @@ export function MessageCenter(props: BaseProps) {
 					>
 						<IconSend />
 					</ActionIcon>
-				</UserReplyForm>
+				</InputButtonPair>
 			</MessageView>
 		</MessageCenterWrapper>
 	);

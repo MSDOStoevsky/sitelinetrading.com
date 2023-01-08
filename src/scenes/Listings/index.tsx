@@ -7,20 +7,24 @@ import _ from "lodash";
 import { searchAllProducts } from "../../api";
 import { ApiPaginatedSearchResponse } from "../../api/ApiPaginatedSearchResponse";
 import { Product } from "../../api/Product";
+import { SearchEntry } from "../../App";
 
 interface Props {
-	searchEntry: string;
+	searchEntry: SearchEntry;
 }
 /**
  * Listings
  */
 export function Listings(props: Props) {
-	const [searchExpresison, setSearchExpression] =
+	const [searchExpression, setSearchExpression] =
 		React.useState<SearchExpression>({
 			page: 0,
 			pageSize: 50,
 			filterExpression: props.searchEntry
-				? { title: props.searchEntry }
+				? {
+						title: props.searchEntry.text,
+						state: props.searchEntry.state,
+				  }
 				: undefined,
 			orderBy: {
 				field: "addedTimestamp",
@@ -33,18 +37,20 @@ export function Listings(props: Props) {
 	>(undefined);
 
 	React.useEffect(() => {
-		searchAllProducts(searchExpresison).then((data) => {
+		searchAllProducts(searchExpression).then((data) => {
 			setListingData(data);
 		});
-	}, [searchExpresison]);
+	}, [searchExpression]);
 
 	React.useEffect(() => {
+		console.log(props.searchEntry);
 		setSearchExpression((oldSearchExpression) => ({
 			...oldSearchExpression,
 			filterExpression: props.searchEntry
 				? {
-						title: props.searchEntry,
 						...oldSearchExpression.filterExpression,
+						title: props.searchEntry.text,
+						state: props.searchEntry.state,
 				  }
 				: undefined,
 		}));
@@ -56,25 +62,24 @@ export function Listings(props: Props) {
 				<ListingToolbar
 					direction="row"
 					p="xs"
-					fixed={true}
 					position={{ top: 0, left: 0 }}
 					height={55}
 					withBorder
+					zIndex={100}
+					filterExpression={searchExpression.filterExpression}
 					onFilterChange={(filterState) => {
 						setSearchExpression((oldSearchExpression) => ({
 							...oldSearchExpression,
 							filterExpression: {
 								...oldSearchExpression.filterExpression,
+								...filterState,
 							},
 						}));
 					}}
 					onSortChange={(sortState) => {
 						setSearchExpression((oldSearchExpression) => ({
 							...oldSearchExpression,
-							orderBy: {
-								field: sortState[0],
-								order: sortState[1] as "ASC" | "DESC",
-							},
+							orderBy: sortState,
 						}));
 					}}
 				/>
@@ -86,8 +91,23 @@ export function Listings(props: Props) {
 				width={{ sm: 55 }}
 				hiddenBreakpoint={"sm"}
 				hidden
-				onFilterChange={(filterState) => {}}
-				onSortChange={(sortState) => {}}
+				zIndex={100}
+				filterExpression={searchExpression.filterExpression}
+				onFilterChange={(filterState) => {
+					setSearchExpression((oldSearchExpression) => ({
+						...oldSearchExpression,
+						filterExpression: {
+							...oldSearchExpression.filterExpression,
+							...filterState,
+						},
+					}));
+				}}
+				onSortChange={(sortState) => {
+					setSearchExpression((oldSearchExpression) => ({
+						...oldSearchExpression,
+						orderBy: sortState,
+					}));
+				}}
 			/>
 
 			<Stack>
@@ -101,9 +121,7 @@ export function Listings(props: Props) {
 					})}
 				</Grid>
 
-				{_.isEmpty(listingData?.data) && (
-					<Center>That search didn't turn up any results</Center>
-				)}
+				{_.isEmpty(listingData?.data) && <Center>No results</Center>}
 
 				{!_.isEmpty(listingData?.data) && (
 					<Center>

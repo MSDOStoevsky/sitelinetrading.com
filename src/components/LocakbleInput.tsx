@@ -15,7 +15,7 @@ export function LockableInput(props: LockableInputProps) {
 			rightSection={
 				<ActionIcon
 					size="lg"
-					variant="subtle"
+					variant="transparent"
 					color="blue"
 					onClick={() => setIsLocked(!isLocked)}
 				>

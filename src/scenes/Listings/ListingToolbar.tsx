@@ -13,8 +13,11 @@ import {
 import { IconArrowsSort, IconFilter } from "@tabler/icons";
 import styled from "@emotion/styled";
 import _ from "lodash";
-
-type FilterState = Record<string, string[]>;
+import {
+	FilterExpression,
+	Order,
+	OrderExpression,
+} from "../../api/SearchExpression";
 
 const NavbarWrapper = styled(Navbar)`
 	gap: 1rem;
@@ -31,9 +34,11 @@ const Dropdown = styled(Popover.Dropdown)`
 interface Props extends Omit<NavbarProps, "children"> {
 	direction: "row" | "column";
 
-	onSortChange(sortState: string[]): void;
+	filterExpression: Record<string, string | boolean> | undefined;
 
-	onFilterChange(filterState: FilterState): void;
+	onSortChange(sortState: OrderExpression): void;
+
+	onFilterChange(filterState: FilterExpression): void;
 }
 
 /**
@@ -41,27 +46,41 @@ interface Props extends Omit<NavbarProps, "children"> {
  */
 export function ListingToolbar(props: Props) {
 	const popoverPosition = props.direction === "column" ? "right" : "bottom";
-	const [sortSelection, setSortSelection] =
-		React.useState<string>("name-DESC");
-	const [filterSelection, setFilterSelection] = React.useState<FilterState>({
-		condition: [],
-	});
+	const [sortSelection, setSortSelection] = React.useState<string>("");
+	const [openToTrade, setOpenToTrade] = React.useState<string>("");
 
 	React.useEffect(() => {
-		const splitSortSelection = _.split(sortSelection, "-");
-		props.onSortChange(splitSortSelection);
+		if (sortSelection) {
+			const splitSortSelection = _.split(sortSelection, "-");
+			props.onSortChange({
+				field: splitSortSelection[0],
+				order: splitSortSelection[1] as Order,
+			});
+		}
 	}, [sortSelection]);
 
 	React.useEffect(() => {
-		props.onFilterChange(filterSelection);
-	}, [filterSelection]);
+		if (openToTrade) {
+			props.onFilterChange({
+				...props.filterExpression,
+				openToTrade: openToTrade === "false" ? false : true,
+			});
+		}
+	}, [openToTrade]);
 
 	return (
 		<NavbarWrapper {...props}>
 			<Popover shadow="md" width={200} position={popoverPosition}>
 				<Popover.Target>
-					<Tooltip label="Sort listings">
-						<ActionIcon size="lg" color={"gray"}>
+					<Tooltip
+						label={`Sort listings${
+							sortSelection ? " (active)" : ""
+						}`}
+					>
+						<ActionIcon
+							size="lg"
+							color={sortSelection ? "blue" : "gray"}
+						>
 							<IconArrowsSort />
 						</ActionIcon>
 					</Tooltip>
@@ -76,39 +95,40 @@ export function ListingToolbar(props: Props) {
 					>
 						<Radio value="title-DESC" label="title A-Z" />
 						<Radio value="title-ASC" label="title Z-A" />
-						<Radio value="price-ASC" label="Price Ascending" />
-						<Radio value="price-DESC" label="Price Descending" />
+						<Radio value="value-ASC" label="value ascending" />
+						<Radio value="value-DESC" label="value descending" />
+						<Radio value="" label="none" />
 					</Radio.Group>
 				</Dropdown>
 			</Popover>
 
 			<Popover shadow="md" width={200} position={popoverPosition}>
 				<Popover.Target>
-					<Tooltip label="Filter listings (active)">
-						<ActionIcon size="lg" color="blue">
+					<Tooltip
+						label={`Filter listings${
+							openToTrade ? " (active)" : ""
+						}`}
+					>
+						<ActionIcon
+							size="lg"
+							color={openToTrade ? "blue" : undefined}
+						>
 							<IconFilter />
 						</ActionIcon>
 					</Tooltip>
 				</Popover.Target>
-
 				<Dropdown>
 					<Stack>
-						<Checkbox.Group
+						<Radio.Group
 							orientation="vertical"
 							label="Accepting Trades"
-							value={filterSelection.condition}
-							onChange={(value) => {
-								setFilterSelection((oldFilterSelection) => {
-									return {
-										...oldFilterSelection,
-										acceptsTrades: value,
-									};
-								});
-							}}
+							value={openToTrade}
+							onChange={setOpenToTrade}
 						>
-							<Checkbox value="yes" label="Yes" />
-							<Checkbox value="no" label="No" />
-						</Checkbox.Group>
+							<Radio value={"true"} label="Yes" />
+							<Radio value={"false"} label="No" />
+							<Radio value="" label="Either" />
+						</Radio.Group>
 					</Stack>
 				</Dropdown>
 			</Popover>

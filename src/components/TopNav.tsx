@@ -11,16 +11,21 @@ import {
 	Overlay,
 	Anchor,
 	MediaQuery,
+	Select,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import { SearchSheet } from "./SearchSheet";
-import { IconPencil, IconSearch, IconUser } from "@tabler/icons";
+import {
+	IconLogout,
+	IconPencil,
+	IconSearch,
+	IconSelector,
+	IconUser,
+} from "@tabler/icons";
 import { useNavigate } from "react-router-dom";
-
-const NavTitle = styled(Title)`
-	line-height: 1;
-`;
+import { SearchEntry } from "../App";
+import { Search } from "../utils/commonStyles";
 
 const TopNavWrapper = styled(Header)`
 	display: flex;
@@ -49,19 +54,26 @@ const RightContent = styled.div`
 
 interface Props {
 	/**
-	 * Whether the user is logged in
+	 * The users ID
 	 */
-	isLoggedIn: boolean;
+	userId?: string;
 	/**
 	 * Called when login is clicked
 	 */
 	onLoginClick(): void;
 	/**
+	 * Called when log out is clicked
+	 */
+	onLogoutClick(): void;
+	/**
 	 * Called when signup is clicked
 	 */
 	onSignupClick(): void;
-
-	onSearch(searchEntry: string): void;
+	/**
+	 *
+	 * @param searchEntry
+	 */
+	onSearch(searchEntry: SearchEntry): void;
 }
 
 /**
@@ -70,7 +82,10 @@ interface Props {
 export function TopNav(props: Props) {
 	const [isSearchDrawerOpen, setIsSearchDrawerOpen] =
 		React.useState<boolean>(false);
-	const [searchEntry, setSearchEntry] = React.useState("");
+	const [searchEntry, setSearchEntry] = React.useState<SearchEntry>({
+		text: "",
+		state: "",
+	});
 	let searchInputRef = React.useRef<null | HTMLInputElement>(null);
 	const navigate = useNavigate();
 
@@ -85,13 +100,23 @@ export function TopNav(props: Props) {
 			<Menu.Dropdown>
 				<Menu.Label>My Account</Menu.Label>
 				<Menu.Item component={Link} to="/account/listings">
-					My Listings
+					Listings
+				</Menu.Item>
+				<Menu.Item component={Link} to={`/users/${props.userId}`}>
+					Feedback
 				</Menu.Item>
 				<Menu.Item component={Link} to="/account/message-center">
 					Message center
 				</Menu.Item>
 				<Menu.Item component={Link} to="/account/account-settings">
 					Account settings
+				</Menu.Item>
+				<Menu.Item
+					icon={<IconLogout size={15} />}
+					onClick={props.onLogoutClick}
+					color="red"
+				>
+					Log out
 				</Menu.Item>
 			</Menu.Dropdown>
 		</Menu>
@@ -119,33 +144,44 @@ export function TopNav(props: Props) {
 				styles={{ display: "none !important" }}
 			>
 				<LeftContent>
-					<NavTitle>
+					<Title>
 						<Anchor
 							inherit
 							onClick={() => {
-								navigate(`home/`);
+								navigate(`news/`);
 							}}
 						>
 							Siteline
 						</Anchor>
-					</NavTitle>
+					</Title>
 				</LeftContent>
 			</MediaQuery>
 			<CenterContent>
-				<TextInput
-					icon={<IconSearch />}
-					placeholder="Search"
-					size={"md"}
-					value={searchEntry}
-					readOnly
-					ref={searchInputRef ? searchInputRef : undefined}
-					onFocus={() => setIsSearchDrawerOpen(true)}
-				/>
+				<Search>
+					<TextInput
+						icon={<IconSearch />}
+						className="Input"
+						placeholder="Search"
+						size={"md"}
+						value={searchEntry.text}
+						readOnly
+						ref={searchInputRef ? searchInputRef : undefined}
+						onFocus={() => setIsSearchDrawerOpen(true)}
+					/>
+					<TextInput
+						rightSection={<IconSelector />}
+						value={searchEntry.state}
+						className="State"
+						size={"md"}
+						placeholder="State"
+						readOnly
+						onFocus={() => setIsSearchDrawerOpen(true)}
+					/>
+				</Search>
 				<SearchSheet
 					searchEntry={searchEntry}
 					isOpen={isSearchDrawerOpen}
 					onClose={() => {
-						console.log(searchInputRef.current);
 						setIsSearchDrawerOpen(false);
 						searchInputRef.current?.blur();
 					}}
@@ -162,7 +198,7 @@ export function TopNav(props: Props) {
 				>
 					<IconPencil />
 				</ActionIcon>
-				{props.isLoggedIn ? isLoggedInMenu : defaultMenu}
+				{!!props.userId ? isLoggedInMenu : defaultMenu}
 			</RightContent>
 		</TopNavWrapper>
 	);

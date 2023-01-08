@@ -1,42 +1,81 @@
 import * as React from "react";
-import { AppShell } from "@mantine/core";
-import { Route, Routes } from "react-router-dom";
-import { Home } from "./scenes/Home";
+import { AppShell, Loader } from "@mantine/core";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import { News } from "./scenes/News";
 import { Listings } from "./scenes/Listings";
 import { NoPage } from "./scenes/NoPage";
 import { TopNav } from "./components/TopNav";
 import { Listing } from "./scenes/Listing";
-import { AccountHome } from "./scenes/AccountHome";
 import { MyListings } from "./scenes/MyListings";
 import { MessageCenter } from "./scenes/MessageCenter";
 import { AccountSettings } from "./scenes/AccountSettings";
-import { IWantToSell } from "./scenes/IWantToSell";
 import { LoginDialog } from "./components/LoginDialog";
 import { SignupDialog } from "./components/SignupDialog";
 import { Post } from "./scenes/Post";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { UserFeedback } from "./scenes/UserFeedback";
+import { getMe } from "./api";
+import { User } from "./api/User";
+import { LoadingPage } from "./scenes/LoadingPage";
+
+export interface SearchEntry {
+	text: string;
+	state: string;
+}
 
 export function App() {
-	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(true);
 	const [isLoginDialogOpen, setIsLoginDialogOpen] =
 		React.useState<boolean>(false);
 	const [isSignupDialogOpen, setIsSignupDialogOpen] =
 		React.useState<boolean>(false);
 
-	const [searchEntry, setSearchEntry] = React.useState<string>("");
+	const [searchEntry, setSearchEntry] = React.useState<SearchEntry>({
+		text: "",
+		state: "",
+	});
+
+	const [isInitializing, setIsInitializing] = React.useState<boolean>(true);
+	const [me, setMe] = React.useState<User | undefined>(undefined);
+
+	const myUserId = me?.userId;
+
+	const isLoggedIn = !!myUserId;
+
+	async function login() {
+		try {
+			const me = await getMe();
+			setMe(me.data);
+		} catch (error) {
+			setMe(undefined);
+		} finally {
+			setIsInitializing(false);
+		}
+	}
+
+	React.useEffect(() => {
+		login();
+	}, []);
 
 	return (
 		<AppShell
 			padding="xl"
 			header={
 				<TopNav
-					isLoggedIn={isLoggedIn}
+					userId={myUserId}
 					onLoginClick={() => {
 						setIsLoginDialogOpen(true);
+					}}
+					onLogoutClick={() => {
+						localStorage.removeItem("sitelineKey");
+						setMe(undefined);
 					}}
 					onSignupClick={() => {
 						setIsSignupDialogOpen(true);
 					}}
-					onSearch={setSearchEntry}
+					onSearch={(value) => {
+						console.log(value);
+						setSearchEntry(value);
+					}}
 				/>
 			}
 			styles={(theme) => ({
@@ -48,43 +87,98 @@ export function App() {
 				},
 			})}
 		>
-			<Routes>
-				<Route index element={<Listings searchEntry={searchEntry} />} />
-				<Route path="home" element={<Home />} />
-				<Route path="listings/:id" element={<Listing />} />
-				<Route path="post" element={<Post />} />
-				<Route
-					path="account"
-					element={<AccountSettings userId="890MAJL" />}
-				/>
-				<Route
-					path="account/i-want-to-sell"
-					element={<IWantToSell />}
-				/>
-				<Route
-					path="account/listings"
-					element={<MyListings userId="890MAJL" />}
-				/>
-				<Route
-					path="account/message-center"
-					element={<MessageCenter userId="890MAJL" />}
-				/>
-				<Route
-					path="account/message-center/:id"
-					element={<MessageCenter userId="890MAJL" />}
-				/>
-				<Route
-					path="account/account-settings"
-					element={<AccountSettings userId="890MAJL" />}
-				/>
-				<Route path="*" element={<NoPage />} />
-			</Routes>
+			{isInitializing ? (
+				<LoadingPage />
+			) : (
+				<Routes>
+					<Route
+						index
+						element={<Listings searchEntry={searchEntry} />}
+					/>
+					<Route path="news" element={<News />} />
+					<Route
+						path="users/:id"
+						element={
+							<ProtectedRoute
+								onProhibited={() => setIsLoginDialogOpen(true)}
+								isLoggedIn={isLoggedIn}
+							>
+								<UserFeedback myId={myUserId!} />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="listings/:id"
+						element={<Listing myId={myUserId} />}
+					/>
+					<Route
+						path="post"
+						element={
+							<ProtectedRoute
+								onProhibited={() => setIsLoginDialogOpen(true)}
+								isLoggedIn={isLoggedIn}
+							>
+								<Post />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="account/listings"
+						element={
+							<ProtectedRoute
+								onProhibited={() => setIsLoginDialogOpen(true)}
+								isLoggedIn={isLoggedIn}
+							>
+								<MyListings myId={myUserId!} />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="account/message-center"
+						element={
+							<ProtectedRoute
+								onProhibited={() => setIsLoginDialogOpen(true)}
+								isLoggedIn={isLoggedIn}
+							>
+								<MessageCenter myId={myUserId!} />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="account/message-center/:id"
+						element={
+							<ProtectedRoute
+								onProhibited={() => setIsLoginDialogOpen(true)}
+								isLoggedIn={isLoggedIn}
+							>
+								<MessageCenter myId={myUserId!} />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="account/account-settings"
+						element={
+							<ProtectedRoute
+								onProhibited={() => setIsLoginDialogOpen(true)}
+								isLoggedIn={isLoggedIn}
+							>
+								{me ? <AccountSettings me={me} /> : null}
+							</ProtectedRoute>
+						}
+					/>
+					<Route path="*" element={<NoPage />} />
+				</Routes>
+			)}
 			<LoginDialog
 				isOpen={!!isLoginDialogOpen}
 				onClose={() => setIsLoginDialogOpen(false)}
 				onSwitchToSignup={() => {
 					setIsLoginDialogOpen(false);
 					setIsSignupDialogOpen(true);
+				}}
+				onSuccessfulLogin={(token) => {
+					localStorage.setItem("sitelineKey", token);
+					login();
 				}}
 			/>
 			<SignupDialog
@@ -93,6 +187,10 @@ export function App() {
 				onSwitchToLogin={() => {
 					setIsSignupDialogOpen(false);
 					setIsLoginDialogOpen(true);
+				}}
+				onSignup={(token) => {
+					localStorage.setItem("sitelineKey", token);
+					login();
 				}}
 			/>
 		</AppShell>

@@ -1,16 +1,21 @@
 export interface Thread {
     _id: string;
-
+    userIds: [string, string];
     chat: Array<Chat>;
 }
 
 export interface Chat {
-
-    message: string;
-
     timestamp: number;
-
+    message: string;
     userId: string;
+}
 
-    userName?: string;
+export interface ThreadForPost {
+    userIds: [string, string];
+    chat: Array<ChatForPost>;
+}
+
+export interface ChatForPost {
+    message: string;
+    userId: string;
 }

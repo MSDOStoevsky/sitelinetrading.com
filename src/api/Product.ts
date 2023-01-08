@@ -6,6 +6,8 @@ export interface Product {
 
     userId: string;
 
+    displayName: string;
+
     title: string;
 
     state: string;
@@ -18,7 +20,7 @@ export interface Product {
 
     openToTrade: boolean;
 
-    addedTimestamp: string;
+    addedTimestamp: number;
 
-    updatedTimestamp: string;
+    updatedTimestamp: number;
 }

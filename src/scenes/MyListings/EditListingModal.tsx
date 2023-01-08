@@ -1,48 +1,84 @@
+import * as React from "react";
 import {
+	Modal,
 	Button,
-	Textarea,
 	TextInput,
+	Text,
 	Stack,
-	Container,
-	Image,
-	SimpleGrid,
+	Center,
 	Switch,
-	LoadingOverlay,
+	SimpleGrid,
+	Textarea,
+	Image,
 	Select,
 } from "@mantine/core";
-import { Text } from "@mantine/core";
-import { IconCurrencyDollar, IconSend } from "@tabler/icons";
-import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from "@mantine/dropzone";
-import * as React from "react";
 import _ from "lodash";
-import { addProduct, getMe } from "../../api";
+import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { Product } from "../../api/Product";
-import { isFormValid } from "../../utils/isFormValid";
+import { updateProduct } from "../../api";
 import { showNotification } from "@mantine/notifications";
-import { User } from "../../api/User";
+import { IconCurrencyDollar } from "@tabler/icons";
 import { STATE_ABBREVIATIONS } from "../../utils/constants";
 
-const defaultProduct = {
-	title: "",
-	description: "",
-	value: "",
-	openToTrade: true,
-};
+interface Props {
+	listingDetails: Product | undefined;
+	onClose(): void;
+	onSubmit(): void;
+}
 
-export function Post() {
+/**
+ *
+ */
+export function EditListingModal(props: Props) {
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
 	const [files, setFiles] = React.useState<FileWithPath[]>([]);
-	const [product, setProduct] =
-		React.useState<Partial<Product>>(defaultProduct);
-	const [me, setMe] = React.useState<User | undefined>(undefined);
+	const [product, setProduct] = React.useState<Partial<Product>>({
+		title: "",
+		description: "",
+		state: "",
+		value: "",
+		openToTrade: true,
+	});
 
 	React.useEffect(() => {
-		loadUser();
-	}, []);
+		if (props.listingDetails) {
+			setProduct(
+				_.pick(props.listingDetails, [
+					"userId",
+					"title",
+					"description",
+					"state",
+					"value",
+					"openToTrade",
+				])
+			);
+		}
+	}, [props.listingDetails]);
 
-	async function loadUser() {
-		setMe((await getMe()).data);
-		setIsLoading(false);
+	async function submit() {
+		if (!props.listingDetails) {
+			return;
+		}
+		setIsLoading(true);
+		try {
+			await updateProduct(props.listingDetails._id!, product);
+
+			showNotification({
+				title: "Success",
+				message: "Edit successful",
+				color: "green",
+			});
+		} catch (error) {
+			showNotification({
+				title: "Error",
+				message: "There was an issue making these changes",
+				color: "red",
+			});
+		} finally {
+			setIsLoading(false);
+			props.onClose();
+			props.onSubmit();
+		}
 	}
 
 	const previews = files.map((file, index) => {
@@ -57,11 +93,14 @@ export function Post() {
 	});
 
 	return (
-		<Container size="xs" px="xs">
-			<div style={{ width: 400, position: "relative" }}>
-				<LoadingOverlay visible={isLoading} overlayBlur={2} />
-				{/* ...other content */}
-			</div>
+		<Modal
+			opened={!!props.listingDetails}
+			onClose={props.onClose}
+			title="Edit"
+			overlayOpacity={0.6}
+			overlayColor="#000"
+			overlayBlur={2}
+		>
 			<Stack>
 				<Dropzone accept={IMAGE_MIME_TYPE} onDrop={setFiles}>
 					<Text align="center">Drop images here</Text>
@@ -106,8 +145,8 @@ export function Post() {
 
 				<Select
 					className="State"
-					label="State"
 					placeholder="State"
+					label="State"
 					withAsterisk
 					data={STATE_ABBREVIATIONS}
 					value={product.state}
@@ -122,8 +161,8 @@ export function Post() {
 				<TextInput
 					placeholder="Value"
 					label="Value"
-					withAsterisk
 					icon={<IconCurrencyDollar size={16} />}
+					withAsterisk
 					value={product.value}
 					onChange={(event) =>
 						setProduct((product) => ({
@@ -144,38 +183,10 @@ export function Post() {
 					}}
 				/>
 
-				<Button
-					disabled={isFormValid(product)}
-					onClick={async () => {
-						setIsLoading(true);
-						try {
-							const addProductResult = await addProduct({
-								...product,
-								userId: me?.userId,
-								image: files[0],
-							} as Product);
-							showNotification({
-								title: "Success!",
-								message: "Your post is live",
-								color: "green",
-							});
-							setProduct(defaultProduct);
-						} catch (error) {
-							showNotification({
-								title: "Oh...",
-								message:
-									"There was an issue posting this, try again later",
-								color: "red",
-							});
-						} finally {
-							setIsLoading(false);
-						}
-					}}
-					leftIcon={<IconSend size={14} />}
-				>
+				<Button fullWidth onClick={() => submit()} loading={isLoading}>
 					Submit
 				</Button>
 			</Stack>
-		</Container>
+		</Modal>
 	);
 }
