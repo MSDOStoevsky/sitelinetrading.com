@@ -1,19 +1,11 @@
 import * as React from "react";
-import {
-	Alert,
-	Modal,
-	Button,
-	TextInput,
-	Text,
-	PasswordInput,
-	Stack,
-	Center,
-} from "@mantine/core";
+import { Modal, Button, TextInput, Text, Stack, Center } from "@mantine/core";
 import _ from "lodash";
 import { useDisclosure } from "@mantine/hooks";
 import { PasswordInputWithSuggestions } from "./PasswordInputWithSuggestions";
 import { createUser } from "../api";
 import { CreateUserRequest } from "../api/CreateUserRequest";
+import { showNotification } from "@mantine/notifications";
 
 interface Props {
 	isOpen: boolean;
@@ -43,9 +35,18 @@ export function SignupDialog(props: Props) {
 		) {
 			try {
 				props.onSignup((await createUser(signupForm)).token);
+				showNotification({
+					title: "Success",
+					message: "You're signed up and logged in!",
+					color: "green",
+				});
 				closeAndResetDialog();
 			} catch (error) {
-				alert(error);
+				showNotification({
+					title: "Error",
+					message: "There was an issue signing up",
+					color: "red",
+				});
 			}
 		}
 	}

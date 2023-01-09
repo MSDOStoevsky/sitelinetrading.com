@@ -19,3 +19,8 @@ export interface ChatForPost {
     message: string;
     userId: string;
 }
+
+export interface StartThread {
+    userIds: [string, string];
+    initialMessage: Omit<Chat, "timestamp">;
+}

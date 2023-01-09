@@ -18,16 +18,9 @@ import styled from "@emotion/styled";
 import { BaseProps } from "../../utils/BaseProps";
 import { useNavigate, useParams } from "react-router-dom";
 import { Thread } from "../../api/Thread";
-import {
-	getMe,
-	getThread,
-	postMessage,
-	searchThreads,
-	startThread,
-} from "../../api";
-import { SearchExpression } from "../../api/SearchExpression";
-import { User } from "../../api/User";
+import { getThread, postMessage, searchThreads, startThread } from "../../api";
 import { InputButtonPair } from "../../components/InputButtonPair";
+import { MessageSearchExpression } from "../../api/MessageSearchExpression";
 
 const MessageCenterWrapper = styled.div`
 	height: 100%;
@@ -103,15 +96,10 @@ export function MessageCenter(props: Props) {
 	);
 
 	const [searchExpression, setSearchExpression] =
-		React.useState<SearchExpression>({
+		React.useState<MessageSearchExpression>({
 			page: 0,
 			pageSize: 50,
 			filterExpression: {},
-			orderBy: {
-				field: "",
-				order: "DESC",
-			},
-			select: "*",
 		});
 
 	const targetUserId =
@@ -171,12 +159,10 @@ export function MessageCenter(props: Props) {
 			if (!id && targetUserId) {
 				await startThread({
 					userIds: [props.myId, targetUserId],
-					chat: [
-						{
-							userId: props.myId,
-							message,
-						},
-					],
+					initialMessage: {
+						userId: props.myId,
+						message,
+					},
 				});
 			} else if (id) {
 				await postMessage(id, {
@@ -195,7 +181,20 @@ export function MessageCenter(props: Props) {
 			<MediaQuery smallerThan={"xs"} styles={{ display: "none" }}>
 				<Paper p="md" withBorder>
 					<Stack>
-						<TextInput placeholder="Filter" />
+						<TextInput
+							placeholder="Filter"
+							onChange={(event) => {
+								setSearchExpression((oldSearchExpression) => {
+									return {
+										...oldSearchExpression,
+										filterExpression: {
+											...oldSearchExpression.filterExpression,
+											userIds: event.target.value,
+										},
+									};
+								});
+							}}
+						/>
 						{!id && userQueryParam ? (
 							<Button
 								variant="filled"

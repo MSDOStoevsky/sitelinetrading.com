@@ -1,10 +1,10 @@
 import axios from "axios";
 import { ApiPaginatedSearchResponse } from "./ApiPaginatedSearchResponse";
 import { CreateUserRequest } from "./CreateUserRequest";
-import { Message } from "./Message";
+import { MessageSearchExpression } from "./MessageSearchExpression";
 import { Product } from "./Product";
 import { SearchExpression } from "./SearchExpression";
-import { Thread, ThreadForPost } from "./Thread";
+import { StartThread } from "./Thread";
 import { UserLoginRequest } from "./UserLoginRequest";
 const LOCAL_API_BASE_URL = "http://localhost:8000";
 
@@ -230,7 +230,7 @@ export async function getMe(
  * @return A promise that resolves to a single product.
  */
 export async function startThread(
-	thread: ThreadForPost
+	thread: StartThread
 ): Promise<any> {
 	return axios
 		.post(`${LOCAL_API_BASE_URL}/message`, thread)
@@ -248,7 +248,7 @@ export async function startThread(
  * @return A promise that resolves to a single product.
  */
  export async function searchThreads(
-	searchExpression: SearchExpression
+	searchExpression: MessageSearchExpression
 ): Promise<any> {
 	return axios
 	.post(`${LOCAL_API_BASE_URL}/message/search`, searchExpression)
