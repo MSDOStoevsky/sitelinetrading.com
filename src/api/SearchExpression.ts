@@ -2,7 +2,7 @@ export type Order = "ASC" | "DESC";
 /**
  * The order expression.
  */
- export interface OrderExpression {
+export interface OrderExpression {
 	field: string;
 	order: Order;
 }

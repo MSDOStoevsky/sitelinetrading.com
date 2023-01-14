@@ -11,6 +11,7 @@ import {
 	Textarea,
 	Image,
 	Select,
+	NativeSelect,
 } from "@mantine/core";
 import _ from "lodash";
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
@@ -19,6 +20,7 @@ import { updateProduct } from "../../api";
 import { showNotification } from "@mantine/notifications";
 import { IconCurrencyDollar } from "@tabler/icons";
 import { STATE_ABBREVIATIONS } from "../../utils/constants";
+import FormData from "form-data";
 
 interface Props {
 	listingDetails: Product | undefined;
@@ -61,7 +63,14 @@ export function EditListingModal(props: Props) {
 		}
 		setIsLoading(true);
 		try {
-			await updateProduct(props.listingDetails._id!, product);
+			const formData = new FormData();
+			if (!_.isEmpty(files)) {
+				const fileName = _.kebabCase(_.deburr(_.trim(product.title)));
+				formData.append("file", files[0], fileName);
+			}
+			formData.append("data", JSON.stringify(product));
+			console.log(formData, files);
+			await updateProduct(props.listingDetails._id!, formData);
 
 			showNotification({
 				title: "Success",
@@ -143,17 +152,17 @@ export function EditListingModal(props: Props) {
 					}
 				/>
 
-				<Select
+				<NativeSelect
 					className="State"
-					placeholder="State"
 					label="State"
+					placeholder="State"
 					withAsterisk
 					data={STATE_ABBREVIATIONS}
 					value={product.state}
-					onChange={(value) => {
+					onChange={(event) => {
 						setProduct((product) => ({
 							...product,
-							state: value || "",
+							state: event.target.value || "",
 						}));
 					}}
 				/>

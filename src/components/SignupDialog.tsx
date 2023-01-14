@@ -72,9 +72,9 @@ export function SignupDialog(props: Props) {
 		>
 			<Stack>
 				<TextInput
-					placeholder="display name"
-					label="Display name (optional)"
-					description="A unique name that you can use to login or allow yourself to stand out"
+					placeholder="Username"
+					label="Username (optional)"
+					description="You will be given an auto generated ID to use regardless, and you will be able to set one later"
 					value={signupForm.displayName}
 					onChange={(event) =>
 						setSignupForm((oldSignupForm) => ({

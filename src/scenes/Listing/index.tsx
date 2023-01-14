@@ -41,17 +41,37 @@ export function Listing(props: Props) {
 		});
 	}, [id]);
 
+	if (!listingData) {
+		return <div>"loading"</div>;
+	}
 	return (
 		<Wrapper>
 			<Grid grow gutter="xl">
 				<Grid.Col sm={12} lg={6}>
-					<ListingDetailImage imageSrc={listingData?.image} />
+					<ListingDetailImage
+						imageSrc={listingData?.image}
+						title={listingData?.title}
+					/>
 				</Grid.Col>
 				<Grid.Col sm={12} lg={6}>
 					<Paper shadow="xs" radius="lg" p="xl" m="sm">
 						<Stack>
 							<Title order={1}>{listingData?.title}</Title>
 							<Title order={6}>
+								<Anchor
+									inherit
+									onClick={() => {
+										navigate(
+											`/users/${listingData?.userId}`
+										);
+									}}
+								>
+									User:{" "}
+									{listingData?.displayName ||
+										listingData?.userId}
+									{", "}
+									{listingData?.state}
+								</Anchor>{" "}
 								Last updated{" "}
 								{new Intl.DateTimeFormat("en-US", {
 									dateStyle: "long",
@@ -60,6 +80,7 @@ export function Listing(props: Props) {
 									listingData?.updatedTimestamp || Date.now()
 								)}
 							</Title>
+							<Title order={6}></Title>
 
 							<Group mb="xs">
 								<Title order={2}>${listingData?.value}</Title>
@@ -100,21 +121,6 @@ export function Listing(props: Props) {
 								>
 									Contact Seller
 								</Button>
-								<Text>
-									<Anchor
-										inherit
-										onClick={() => {
-											navigate(
-												`/users/${listingData?.userId}`
-											);
-										}}
-									>
-										User:{" "}
-										{listingData?.displayName ||
-											listingData?.userId}{" "}
-										{listingData?.state}
-									</Anchor>
-								</Text>
 							</Group>
 						</Stack>
 					</Paper>

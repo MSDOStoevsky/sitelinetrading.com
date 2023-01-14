@@ -6,6 +6,7 @@ import {
 	Pagination,
 	Skeleton,
 	Stack,
+	TextInput,
 } from "@mantine/core";
 import { ListingCard } from "../../components/ListingCard";
 import { SearchExpression } from "../../api/SearchExpression";
@@ -19,15 +20,17 @@ import { BaseProps } from "../../utils/BaseProps";
 import { EditListingModal } from "./EditListingModal";
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
 import { showNotification } from "@mantine/notifications";
+import { DateTime } from "luxon";
 
 interface Props extends BaseProps {
 	myId: string;
+	id: string;
 }
 
 /**
  * Listings
  */
-export function MyListings(props: Props) {
+export function Listings(props: Props) {
 	const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [confirmDeleteId, setConfirmDeleteId] = React.useState<
 		string | undefined
@@ -35,32 +38,36 @@ export function MyListings(props: Props) {
 	const [listingDetails, setListingDetails] = React.useState<
 		Product | undefined
 	>(undefined);
-	const [searchExpresison, setSearchExpression] = React.useState<
-		SearchExpression | undefined
-	>(undefined);
 	const [listingData, setListingData] = React.useState<
 		undefined | ApiPaginatedSearchResponse<Product>
 	>(undefined);
+	const [searchExpresison, setSearchExpression] =
+		React.useState<SearchExpression>({
+			page: 0,
+			pageSize: 8,
+			filterExpression: { userId: props.id, title: "" },
+			orderBy: {
+				field: "createdTimestamp",
+				order: "DESC",
+			},
+			select: "*",
+		});
+
+	const isThisMe = props.myId === props.id;
 
 	React.useEffect(() => {
 		loadProducts();
 	}, [searchExpresison]);
 
 	React.useEffect(() => {
-		if (!props.myId) {
-			return;
-		}
-		setSearchExpression({
-			page: 0,
-			pageSize: 50,
-			filterExpression: { userId: props.myId },
-			orderBy: {
-				field: "addedTimestamp",
-				order: "DESC",
+		setSearchExpression((previousSearchExpression) => ({
+			...previousSearchExpression,
+			filterExpression: {
+				...previousSearchExpression?.filterExpression,
+				userId: props.id,
 			},
-			select: "*",
-		});
-	}, [props.myId]);
+		}));
+	}, [props.id]);
 
 	function loadProducts() {
 		if (!searchExpresison) {
@@ -95,37 +102,11 @@ export function MyListings(props: Props) {
 		}
 	}
 
-	return (
-		<>
-			<Stack>
-				<Skeleton visible={isLoading}>
-					<Grid>
-						{_.map(listingData?.data, (listing) => {
-							return (
-								<Grid.Col
-									sm={6}
-									md={6}
-									lg={3}
-									key={listing._id}
-								>
-									<ListingCard
-										{...listing}
-										isEditable={true}
-										onEdit={() =>
-											setListingDetails(listing)
-										}
-										onDelete={() =>
-											setConfirmDeleteId(listing._id)
-										}
-									/>
-								</Grid.Col>
-							);
-						})}
-					</Grid>
-				</Skeleton>
-
-				{listingData !== undefined && _.isEmpty(listingData?.data) ? (
-					<Center>
+	function renderNoListingMessage(isThisMe: boolean) {
+		return (
+			<Center>
+				{isThisMe ? (
+					<>
 						You haven't made any listings. Click
 						<ActionIcon
 							component={Link}
@@ -137,19 +118,78 @@ export function MyListings(props: Props) {
 							<IconPencil />
 						</ActionIcon>{" "}
 						to make one
-					</Center>
-				) : null}
+					</>
+				) : (
+					<>User has no listings</>
+				)}
+			</Center>
+		);
+	}
+	return (
+		<>
+			<Stack>
+				<TextInput
+					size="lg"
+					placeholder="Filter"
+					value={searchExpresison?.filterExpression!.title as string}
+					onChange={(event) =>
+						setSearchExpression((previousSearchExpression) => ({
+							...previousSearchExpression,
+							filterExpression: {
+								...previousSearchExpression?.filterExpression,
+								title: event.target.value,
+							},
+						}))
+					}
+				/>
+				<Skeleton visible={isLoading}>
+					<Grid>
+						{_.map(listingData?.data, (listing) => {
+							const expiresInDays = DateTime.fromMillis(
+								listing.createdTimestamp
+							)
+								.plus({ days: 30 })
+								.diffNow("days").days;
+
+							return (
+								<Grid.Col
+									sm={6}
+									md={6}
+									lg={3}
+									key={listing._id}
+								>
+									<ListingCard
+										{...listing}
+										isEditable={isThisMe}
+										onEdit={() =>
+											setListingDetails(listing)
+										}
+										onDelete={() =>
+											setConfirmDeleteId(listing._id)
+										}
+										expiresIn={expiresInDays}
+									/>
+								</Grid.Col>
+							);
+						})}
+					</Grid>
+				</Skeleton>
+
+				{listingData !== undefined && _.isEmpty(listingData?.data)
+					? renderNoListingMessage(isThisMe)
+					: null}
 
 				{!_.isEmpty(listingData?.data) && (
 					<Center>
 						<Pagination
-							page={listingData?.pageInfo.currentPage}
+							page={
+								listingData
+									? listingData.pageInfo.currentPage + 1
+									: undefined
+							}
 							onChange={(page) => {
 								setSearchExpression(
 									(curentSearchExpression) => {
-										if (!curentSearchExpression) {
-											return;
-										}
 										return {
 											...curentSearchExpression,
 											page: page,

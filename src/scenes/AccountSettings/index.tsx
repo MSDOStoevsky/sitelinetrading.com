@@ -5,10 +5,8 @@ import {
 	Button,
 	TextInput,
 	Title,
-	Skeleton,
 } from "@mantine/core";
 import * as React from "react";
-import { getMe } from "../../api";
 import { EmailPreferences, User } from "../../api/User";
 import { LockableInput } from "../../components/LocakbleInput";
 
@@ -17,7 +15,6 @@ interface Props {
 }
 
 export function AccountSettings(props: Props) {
-	const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [immutableAccountSettings, setImmutableAccountSettings] =
 		React.useState<Partial<User>>({
 			userId: "",

@@ -3,6 +3,7 @@ import { Image, Paper } from "@mantine/core";
 
 interface Props {
 	imageSrc: string;
+	title: string | undefined;
 }
 
 export function ListingDetailImage(props: Props) {
@@ -10,8 +11,8 @@ export function ListingDetailImage(props: Props) {
 		<Paper shadow="xs" radius="lg" p="xl" m="sm">
 			<Image
 				src={props.imageSrc}
-				height={400}
-				alt="Norway"
+				alt={props.title}
+				height={!props.imageSrc ? "400px" : undefined}
 				withPlaceholder
 			/>
 		</Paper>

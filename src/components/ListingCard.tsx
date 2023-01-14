@@ -12,6 +12,7 @@ import {
 import { Product } from "../api/Product";
 import { useNavigate } from "react-router-dom";
 import { IconPencil, IconTrash } from "@tabler/icons";
+import _ from "lodash";
 
 const useStyles = createStyles(() => ({
 	clickableSection: {
@@ -23,6 +24,7 @@ export interface Props extends Product {
 	isEditable?: boolean;
 	onEdit?(): void;
 	onDelete?(): void;
+	expiresIn?: number;
 }
 
 export function ListingCard(props: Props) {
@@ -64,9 +66,10 @@ export function ListingCard(props: Props) {
 				onClick={() => navigate(`/listings/${props._id}`)}
 			>
 				<Image
-					src="https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80"
+					src={props.image}
 					height={160}
 					alt={props.title}
+					withPlaceholder
 				/>
 			</Card.Section>
 			<Card.Section inheritPadding py="xs">
@@ -78,9 +81,15 @@ export function ListingCard(props: Props) {
 						</Badge>
 					) : null}
 				</Group>
-				<Anchor onClick={() => navigate(`/users/${props.userId}`)}>
-					{props.displayName || props.userId} {props.state}
-				</Anchor>
+				<Group position="apart">
+					<Anchor onClick={() => navigate(`/users/${props.userId}`)}>
+						{props.displayName || props.userId},{" "}
+						{props.state || "N/A"}
+					</Anchor>
+					{props.expiresIn ? (
+						<div>Expires in {_.floor(props.expiresIn)} days</div>
+					) : null}
+				</Group>
 			</Card.Section>
 		</Card>
 	);

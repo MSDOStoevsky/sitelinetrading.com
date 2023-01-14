@@ -26,6 +26,7 @@ import { STATE_ABBREVIATIONS } from "../utils/constants";
 import { SearchEntry } from "../App";
 import { LoadingPage } from "../scenes/LoadingPage";
 import { Search } from "../utils/commonStyles";
+import { showNotification } from "@mantine/notifications";
 
 interface Props {
 	isOpen: boolean;
@@ -75,23 +76,34 @@ export function SearchSheet(props: Props) {
 	>(undefined);
 
 	React.useEffect(() => {
-		setIsLoading(true);
-		searchAllProducts({
-			filterExpression: { title: text, state: state },
-			orderBy: {
-				field: "title",
-				order: "DESC",
-			},
-			page: 0,
-			pageSize: 10,
-			select: "*",
-		})
-			.then((data) => {
-				setListingSuggestions(data);
-			})
-			.finally(() => setIsLoading(false));
+		getPreviews();
 		props.onChange({ text, state });
 	}, [text, state]);
+
+	async function getPreviews() {
+		setIsLoading(true);
+		try {
+			const searchResults = await searchAllProducts({
+				filterExpression: { title: text, state: state },
+				orderBy: {
+					field: "title",
+					order: "DESC",
+				},
+				page: 0,
+				pageSize: 10,
+				select: "*",
+			});
+
+			setListingSuggestions(searchResults);
+		} catch (error) {
+			showNotification({
+				title: "Error",
+				message: "error trying to search",
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}
 
 	const ref = useClickOutside(() => props.onClose());
 	const navigate = useNavigate();
@@ -180,7 +192,7 @@ export function SearchSheet(props: Props) {
 						className="State"
 						size={"xl"}
 						placeholder="State"
-						data={STATE_ABBREVIATIONS}
+						data={["", ...STATE_ABBREVIATIONS]}
 						onChange={(value) => {
 							setState(value || "");
 						}}

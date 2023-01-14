@@ -9,9 +9,11 @@ import {
 	TextInput,
 	Button,
 	ScrollArea,
+	Navbar,
+	Drawer,
 } from "@mantine/core";
 import { useLocation } from "react-router-dom";
-import { IconPencil, IconSend } from "@tabler/icons";
+import { IconLayoutSidebar, IconPencil, IconSend } from "@tabler/icons";
 import _ from "lodash";
 import { Chat } from "../../components/Chat";
 import styled from "@emotion/styled";
@@ -21,6 +23,7 @@ import { Thread } from "../../api/Thread";
 import { getThread, postMessage, searchThreads, startThread } from "../../api";
 import { InputButtonPair } from "../../components/InputButtonPair";
 import { MessageSearchExpression } from "../../api/MessageSearchExpression";
+import { getUsers } from "../../api/userServlet";
 
 const MessageCenterWrapper = styled.div`
 	height: 100%;
@@ -44,13 +47,7 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 	},
 }));
 
-function getTargetUserIdFromThread(
-	thread: Thread | undefined,
-	userId: string
-): string | undefined {
-	if (!thread) {
-		return undefined;
-	}
+function getTargetUserFromThread(thread: Thread, userId: string): string {
 	return thread.userIds[thread.userIds.indexOf(userId) === 1 ? 0 : 1];
 }
 
@@ -68,11 +65,16 @@ export function MessageCenter(props: Props) {
 	const navigate = useNavigate();
 	const refQueryParam = new URLSearchParams(search).get("ref");
 	const userQueryParam = new URLSearchParams(search).get("user");
+	const [isDrawerOpen, setIsDrawerOpen] = React.useState<boolean>(false);
 	const [thread, setThread] = React.useState<Thread | undefined>(undefined);
 	// const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [message, setMessage] = React.useState<string>(
 		refQueryParam ? `Regarding ${refQueryParam}...` : ""
 	);
+	const [displayNames, setDisplayNames] = React.useState<
+		Record<string, string>
+	>({});
+
 	const viewportRef = React.useRef<HTMLDivElement | null>();
 
 	const [availableThreads, setAvailableThreads] = React.useState<
@@ -102,8 +104,9 @@ export function MessageCenter(props: Props) {
 			filterExpression: {},
 		});
 
-	const targetUserId =
-		getTargetUserIdFromThread(thread, props.myId) || userQueryParam;
+	const targetUserId = thread
+		? getTargetUserFromThread(thread, props.myId)
+		: userQueryParam;
 
 	React.useEffect(() => {
 		loadThread();
@@ -123,7 +126,38 @@ export function MessageCenter(props: Props) {
 				`/account/message-center/${foundThread._id}?ref=${refQueryParam}`
 			);
 		}
+
+		if (!_.isEmpty(availableThreads)) {
+			loadUserDisplayNames();
+		}
 	}, [availableThreads]);
+
+	async function loadUserDisplayNames() {
+		if (!availableThreads) {
+			return;
+		}
+
+		const targetUserIds = _.map(availableThreads, (thread) => {
+			return getTargetUserFromThread(thread, props.myId);
+		});
+
+		try {
+			const usersFeedback = (
+				await getUsers({ userIds: [...targetUserIds, props.myId] })
+			).data;
+			console.log(
+				_(usersFeedback).keyBy("_id").mapValues("displayName").value()
+			);
+			setDisplayNames(
+				_(usersFeedback).keyBy("_id").mapValues("displayName").value()
+			);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			//loadThread();
+			// setIsLoading(false);
+		}
+	}
 
 	async function loadAvailableThreads() {
 		try {
@@ -178,9 +212,70 @@ export function MessageCenter(props: Props) {
 
 	return (
 		<MessageCenterWrapper>
+			<Drawer
+				opened={isDrawerOpen}
+				onClose={() => setIsDrawerOpen(false)}
+				padding="xs"
+			>
+				<TextInput
+					placeholder="Filter"
+					onChange={(event) => {
+						setSearchExpression((oldSearchExpression) => {
+							return {
+								...oldSearchExpression,
+								filterExpression: {
+									...oldSearchExpression.filterExpression,
+									userIds: event.target.value,
+								},
+							};
+						});
+					}}
+					pb="xs"
+				/>
+				{!id && userQueryParam ? (
+					<Button
+						variant="filled"
+						fullWidth
+						rightIcon={<IconPencil />}
+					>
+						{userQueryParam}
+					</Button>
+				) : null}
+				<Stack>
+					{_.map(availableThreads, (thread) => {
+						const threadId = thread._id;
+						const targetUserFromThread = getTargetUserFromThread(
+							thread,
+							props.myId
+						)!;
+						return (
+							<Button
+								key={threadId}
+								variant={threadId === id ? "filled" : "subtle"}
+								fullWidth
+								onClick={() => {
+									navigate(
+										`/account/message-center/${threadId}`
+									);
+									setIsDrawerOpen(false);
+								}}
+							>
+								{displayNames[targetUserFromThread] ||
+									targetUserFromThread}
+							</Button>
+						);
+					})}
+				</Stack>
+			</Drawer>
 			<MediaQuery smallerThan={"xs"} styles={{ display: "none" }}>
-				<Paper p="md" withBorder>
-					<Stack>
+				<Navbar
+					p="xs"
+					width={{ sm: 350 }}
+					hiddenBreakpoint={"sm"}
+					hidden
+					zIndex={100}
+				>
+					<Navbar.Section mt="xs" mb="xs">
 						<TextInput
 							placeholder="Filter"
 							onChange={(event) => {
@@ -204,29 +299,45 @@ export function MessageCenter(props: Props) {
 								{userQueryParam}
 							</Button>
 						) : null}
-						{_.map(availableThreads, (thread) => {
-							const threadId = thread._id;
-							const targetUserIdFromThread =
-								getTargetUserIdFromThread(thread, props.myId)!;
-							return (
-								<Button
-									key={threadId}
-									variant={
-										threadId === id ? "filled" : "subtle"
-									}
-									fullWidth
-									onClick={() =>
-										navigate(
-											`/account/message-center/${threadId}`
-										)
-									}
-								>
-									{targetUserIdFromThread}
-								</Button>
-							);
-						})}
-					</Stack>
-				</Paper>
+					</Navbar.Section>
+
+					<Navbar.Section
+						grow
+						component={ScrollArea}
+						mx="-xs"
+						px="xs"
+					>
+						<Stack>
+							{_.map(availableThreads, (thread) => {
+								const threadId = thread._id;
+								const targetUserFromThread =
+									getTargetUserFromThread(
+										thread,
+										props.myId
+									)!;
+								return (
+									<Button
+										key={threadId}
+										variant={
+											threadId === id
+												? "filled"
+												: "subtle"
+										}
+										fullWidth
+										onClick={() => {
+											navigate(
+												`/account/message-center/${threadId}`
+											);
+										}}
+									>
+										{displayNames[targetUserFromThread] ||
+											targetUserFromThread}
+									</Button>
+								);
+							})}
+						</Stack>
+					</Navbar.Section>
+				</Navbar>
 			</MediaQuery>
 			<MessageView>
 				<ChatWindow
@@ -242,7 +353,10 @@ export function MessageCenter(props: Props) {
 											key={_.uniqueId("chat")}
 											timestamp={chat.timestamp}
 											message={chat.message}
-											user={chat.userId}
+											user={
+												displayNames[chat.userId] ||
+												chat.userId
+											}
 											isMe={chat.userId === props.myId}
 										/>
 									);
@@ -251,6 +365,18 @@ export function MessageCenter(props: Props) {
 					</Stack>
 				</ChatWindow>
 				<InputButtonPair>
+					<MediaQuery largerThan={"xs"} styles={{ display: "none" }}>
+						<ActionIcon
+							className={classes.sendButton}
+							color="blue"
+							title="Send"
+							size="xl"
+							variant="filled"
+							onClick={() => setIsDrawerOpen(true)}
+						>
+							<IconLayoutSidebar />
+						</ActionIcon>
+					</MediaQuery>
 					<Textarea
 						className="ReplyForm"
 						placeholder={

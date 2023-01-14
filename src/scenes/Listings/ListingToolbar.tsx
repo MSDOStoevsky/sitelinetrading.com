@@ -36,7 +36,7 @@ interface Props extends Omit<NavbarProps, "children"> {
 
 	filterExpression: Record<string, string | boolean> | undefined;
 
-	onSortChange(sortState: OrderExpression): void;
+	onSortChange(sortState: OrderExpression | undefined): void;
 
 	onFilterChange(filterState: FilterExpression): void;
 }
@@ -50,17 +50,21 @@ export function ListingToolbar(props: Props) {
 	const [openToTrade, setOpenToTrade] = React.useState<string>("");
 
 	React.useEffect(() => {
-		if (sortSelection) {
-			const splitSortSelection = _.split(sortSelection, "-");
-			props.onSortChange({
-				field: splitSortSelection[0],
-				order: splitSortSelection[1] as Order,
-			});
-		}
+		const splitSortSelection = _.split(sortSelection, "-");
+		props.onSortChange(
+			sortSelection
+				? {
+						field: splitSortSelection[0],
+						order: splitSortSelection[1] as Order,
+				  }
+				: undefined
+		);
 	}, [sortSelection]);
 
 	React.useEffect(() => {
-		if (openToTrade) {
+		if (!openToTrade) {
+			props.onFilterChange(_.omit(props.filterExpression, "openToTrade"));
+		} else {
 			props.onFilterChange({
 				...props.filterExpression,
 				openToTrade: openToTrade === "false" ? false : true,

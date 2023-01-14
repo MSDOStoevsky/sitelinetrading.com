@@ -72,8 +72,8 @@ export function LoginDialog(props: Props) {
 		>
 			<Stack>
 				<TextInput
-					placeholder="your account ID or display name"
-					label="Account ID or Display Name"
+					placeholder="your account ID or username"
+					label="Account ID or Username"
 					onChange={(event) =>
 						setLoginForm((oldLoginForm) => ({
 							...oldLoginForm,

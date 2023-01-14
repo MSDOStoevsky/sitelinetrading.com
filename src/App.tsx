@@ -1,22 +1,22 @@
 import * as React from "react";
-import { AppShell, Loader } from "@mantine/core";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { AppShell } from "@mantine/core";
+import { Route, Routes } from "react-router-dom";
 import { News } from "./scenes/News";
 import { Listings } from "./scenes/Listings";
 import { NoPage } from "./scenes/NoPage";
 import { TopNav } from "./components/TopNav";
 import { Listing } from "./scenes/Listing";
-import { MyListings } from "./scenes/MyListings";
 import { MessageCenter } from "./scenes/MessageCenter";
 import { AccountSettings } from "./scenes/AccountSettings";
 import { LoginDialog } from "./components/LoginDialog";
 import { SignupDialog } from "./components/SignupDialog";
 import { Post } from "./scenes/Post";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { UserFeedback } from "./scenes/UserFeedback";
-import { getMe } from "./api";
-import { User } from "./api/User";
+import { User } from "./scenes/User";
+import { User as UserInterface } from "./api/User";
 import { LoadingPage } from "./scenes/LoadingPage";
+import { getMe } from "./api/userServlet";
+import { Legal } from "./scenes/Legal";
 
 export interface SearchEntry {
 	text: string;
@@ -35,7 +35,7 @@ export function App() {
 	});
 
 	const [isInitializing, setIsInitializing] = React.useState<boolean>(true);
-	const [me, setMe] = React.useState<User | undefined>(undefined);
+	const [me, setMe] = React.useState<UserInterface | undefined>(undefined);
 
 	const myUserId = me?.userId;
 
@@ -73,7 +73,6 @@ export function App() {
 						setIsSignupDialogOpen(true);
 					}}
 					onSearch={(value) => {
-						console.log(value);
 						setSearchEntry(value);
 					}}
 				/>
@@ -96,6 +95,7 @@ export function App() {
 						element={<Listings searchEntry={searchEntry} />}
 					/>
 					<Route path="news" element={<News />} />
+					<Route path="legal" element={<Legal />} />
 					<Route
 						path="users/:id"
 						element={
@@ -103,7 +103,10 @@ export function App() {
 								onProhibited={() => setIsLoginDialogOpen(true)}
 								isLoggedIn={isLoggedIn}
 							>
-								<UserFeedback myId={myUserId!} />
+								<User
+									myId={myUserId!}
+									displayName={me?.displayName}
+								/>
 							</ProtectedRoute>
 						}
 					/>
@@ -118,18 +121,7 @@ export function App() {
 								onProhibited={() => setIsLoginDialogOpen(true)}
 								isLoggedIn={isLoggedIn}
 							>
-								<Post />
-							</ProtectedRoute>
-						}
-					/>
-					<Route
-						path="account/listings"
-						element={
-							<ProtectedRoute
-								onProhibited={() => setIsLoginDialogOpen(true)}
-								isLoggedIn={isLoggedIn}
-							>
-								<MyListings myId={myUserId!} />
+								<Post myId={myUserId!} />
 							</ProtectedRoute>
 						}
 					/>

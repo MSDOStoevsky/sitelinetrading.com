@@ -2,16 +2,22 @@ import * as React from "react";
 import { Center, Grid, MediaQuery, Pagination, Stack } from "@mantine/core";
 import { ListingCard } from "../../components/ListingCard";
 import { ListingToolbar } from "./ListingToolbar";
-import { SearchExpression } from "../../api/SearchExpression";
+import { SearchExpression, OrderExpression } from "../../api/SearchExpression";
 import _ from "lodash";
 import { searchAllProducts } from "../../api";
 import { ApiPaginatedSearchResponse } from "../../api/ApiPaginatedSearchResponse";
 import { Product } from "../../api/Product";
 import { SearchEntry } from "../../App";
 
+const defaultOrderExpression: OrderExpression = {
+	field: "createdTimestamp",
+	order: "DESC",
+};
+
 interface Props {
 	searchEntry: SearchEntry;
 }
+
 /**
  * Listings
  */
@@ -26,10 +32,7 @@ export function Listings(props: Props) {
 						state: props.searchEntry.state,
 				  }
 				: undefined,
-			orderBy: {
-				field: "addedTimestamp",
-				order: "DESC",
-			},
+			orderBy: defaultOrderExpression,
 			select: "*",
 		});
 	const [listingData, setListingData] = React.useState<
@@ -43,7 +46,6 @@ export function Listings(props: Props) {
 	}, [searchExpression]);
 
 	React.useEffect(() => {
-		console.log(props.searchEntry);
 		setSearchExpression((oldSearchExpression) => ({
 			...oldSearchExpression,
 			filterExpression: props.searchEntry
@@ -70,16 +72,13 @@ export function Listings(props: Props) {
 					onFilterChange={(filterState) => {
 						setSearchExpression((oldSearchExpression) => ({
 							...oldSearchExpression,
-							filterExpression: {
-								...oldSearchExpression.filterExpression,
-								...filterState,
-							},
+							filterExpression: filterState,
 						}));
 					}}
 					onSortChange={(sortState) => {
 						setSearchExpression((oldSearchExpression) => ({
 							...oldSearchExpression,
-							orderBy: sortState,
+							orderBy: sortState || defaultOrderExpression,
 						}));
 					}}
 				/>
@@ -89,23 +88,21 @@ export function Listings(props: Props) {
 				direction="column"
 				p="xs"
 				width={{ sm: 55 }}
-				hiddenBreakpoint={"sm"}
+				hiddenBreakpoint={"md"}
 				hidden
 				zIndex={100}
 				filterExpression={searchExpression.filterExpression}
 				onFilterChange={(filterState) => {
+					console.log(filterState);
 					setSearchExpression((oldSearchExpression) => ({
 						...oldSearchExpression,
-						filterExpression: {
-							...oldSearchExpression.filterExpression,
-							...filterState,
-						},
+						filterExpression: filterState,
 					}));
 				}}
 				onSortChange={(sortState) => {
 					setSearchExpression((oldSearchExpression) => ({
 						...oldSearchExpression,
-						orderBy: sortState,
+						orderBy: sortState || defaultOrderExpression,
 					}));
 				}}
 			/>

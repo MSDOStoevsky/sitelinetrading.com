@@ -20,7 +20,7 @@ export interface Product {
 
     openToTrade: boolean;
 
-    addedTimestamp: number;
+    createdTimestamp: number;
 
     updatedTimestamp: number;
 }

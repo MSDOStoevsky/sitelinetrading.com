@@ -3,22 +3,25 @@ import {
 	Title,
 	Header,
 	Menu,
-	Popover,
-	HoverCard,
 	TextInput,
-	Text,
 	ActionIcon,
-	Overlay,
 	Anchor,
 	MediaQuery,
-	Select,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import { SearchSheet } from "./SearchSheet";
 import {
+	IconBrandGithub,
+	IconCurrencyDollar,
+	IconEdit,
+	IconExternalLink,
+	IconLogin,
 	IconLogout,
+	IconMenu,
 	IconPencil,
+	IconQuestionMark,
+	IconRadio,
 	IconSearch,
 	IconSelector,
 	IconUser,
@@ -26,6 +29,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { SearchEntry } from "../App";
 import { Search } from "../utils/commonStyles";
+import { useMediaQuery } from "@mantine/hooks";
 
 const TopNavWrapper = styled(Header)`
 	display: flex;
@@ -88,6 +92,86 @@ export function TopNav(props: Props) {
 	});
 	let searchInputRef = React.useRef<null | HTMLInputElement>(null);
 	const navigate = useNavigate();
+	const isMobile = useMediaQuery("(max-width: 768px)");
+
+	const generalMenuItems = (
+		<>
+			<Menu.Item
+				component={Link}
+				to="/news"
+				icon={<IconRadio size={15} />}
+			>
+				News
+			</Menu.Item>
+			<Menu.Item
+				component={Link}
+				to="/legal"
+				icon={<IconQuestionMark size={15} />}
+			>
+				FAQ/Legal
+			</Menu.Item>
+			<Menu.Item
+				component="a"
+				target="_blank"
+				href="https://github.com/MSDOStoevsky/sitelinetradingpost.com/releases"
+				icon={<IconBrandGithub size={15} />}
+				rightSection={<IconExternalLink size={15} />}
+			>
+				Changelog
+			</Menu.Item>
+			<Menu.Item
+				component="a"
+				target="_blank"
+				href="https://github.com/MSDOStoevsky/sitelinetradingpost.com/releases"
+				icon={<IconCurrencyDollar size={15} />}
+				rightSection={<IconExternalLink size={15} />}
+			>
+				Contribute
+			</Menu.Item>
+			<Menu.Divider />
+		</>
+	);
+
+	const isLoggedOutMenuItems = (
+		<>
+			{generalMenuItems}
+			<Menu.Item
+				onClick={props.onLoginClick}
+				icon={<IconLogin size={15} />}
+			>
+				Log in
+			</Menu.Item>
+			<Menu.Item
+				onClick={props.onSignupClick}
+				icon={<IconEdit size={15} />}
+			>
+				Sign up
+			</Menu.Item>
+		</>
+	);
+
+	const isLoggedInMenuItems = (
+		<>
+			{generalMenuItems}
+			<Menu.Label>{props.userId}</Menu.Label>
+			<Menu.Item component={Link} to={`/users/${props.userId}`}>
+				Me
+			</Menu.Item>
+			<Menu.Item component={Link} to="/account/message-center">
+				Messages
+			</Menu.Item>
+			<Menu.Item component={Link} to="/account/account-settings">
+				Settings
+			</Menu.Item>
+			<Menu.Item
+				icon={<IconLogout size={15} />}
+				onClick={props.onLogoutClick}
+				color="red"
+			>
+				Log out
+			</Menu.Item>
+		</>
+	);
 
 	const isLoggedInMenu = (
 		<Menu shadow="md" width={200}>
@@ -97,28 +181,7 @@ export function TopNav(props: Props) {
 				</ActionIcon>
 			</Menu.Target>
 
-			<Menu.Dropdown>
-				<Menu.Label>My Account</Menu.Label>
-				<Menu.Item component={Link} to="/account/listings">
-					Listings
-				</Menu.Item>
-				<Menu.Item component={Link} to={`/users/${props.userId}`}>
-					Feedback
-				</Menu.Item>
-				<Menu.Item component={Link} to="/account/message-center">
-					Message center
-				</Menu.Item>
-				<Menu.Item component={Link} to="/account/account-settings">
-					Account settings
-				</Menu.Item>
-				<Menu.Item
-					icon={<IconLogout size={15} />}
-					onClick={props.onLogoutClick}
-					color="red"
-				>
-					Log out
-				</Menu.Item>
-			</Menu.Dropdown>
+			<Menu.Dropdown>{isLoggedInMenuItems}</Menu.Dropdown>
 		</Menu>
 	);
 
@@ -130,9 +193,30 @@ export function TopNav(props: Props) {
 				</ActionIcon>
 			</Menu.Target>
 
+			<Menu.Dropdown>{isLoggedOutMenuItems}</Menu.Dropdown>
+		</Menu>
+	);
+
+	const desktopMenu = !!props.userId ? isLoggedInMenu : defaultMenu;
+
+	const menuOnMobile = (
+		<Menu shadow="md" width={200}>
+			<Menu.Target>
+				<ActionIcon size="lg" title="menu">
+					<IconMenu />
+				</ActionIcon>
+			</Menu.Target>
+
 			<Menu.Dropdown>
-				<Menu.Item onClick={props.onLoginClick}>Log in</Menu.Item>
-				<Menu.Item onClick={props.onSignupClick}>Sign up</Menu.Item>
+				<>
+					<Menu.Item component={Link} to="/post/">
+						Post
+					</Menu.Item>
+					<Menu.Item component={Link} to="/news/">
+						News
+					</Menu.Item>
+				</>
+				{!!props.userId ? isLoggedInMenuItems : isLoggedOutMenuItems}
 			</Menu.Dropdown>
 		</Menu>
 	);
@@ -190,15 +274,17 @@ export function TopNav(props: Props) {
 				/>
 			</CenterContent>
 			<RightContent>
-				<ActionIcon
-					component={Link}
-					to="/post/"
-					size="lg"
-					title="make a listing"
-				>
-					<IconPencil />
-				</ActionIcon>
-				{!!props.userId ? isLoggedInMenu : defaultMenu}
+				{!isMobile ? (
+					<ActionIcon
+						component={Link}
+						to="/post/"
+						size="lg"
+						title="make a listing"
+					>
+						<IconPencil />
+					</ActionIcon>
+				) : null}
+				{isMobile ? menuOnMobile : desktopMenu}
 			</RightContent>
 		</TopNavWrapper>
 	);

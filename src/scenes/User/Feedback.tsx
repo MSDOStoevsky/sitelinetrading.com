@@ -3,15 +3,12 @@ import {
 	ActionIcon,
 	Anchor,
 	Box,
-	Button,
 	Center,
 	Container,
 	createStyles,
 	Divider,
-	Group,
-	Input,
-	Loader,
 	Navbar,
+	ScrollArea,
 	Skeleton,
 	Stack,
 	Text,
@@ -19,13 +16,14 @@ import {
 	Title,
 } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
-import { Feedback, UserFeedback as UserFeedbackData } from "../../api/Feedback";
+import { UserFeedback as UserFeedbackData } from "../../api/Feedback";
 import _ from "lodash";
 import { InputButtonPair } from "../../components/InputButtonPair";
 import { IconSend } from "@tabler/icons";
 import { getFeedback, postFeedback } from "../../api";
 import { showNotification } from "@mantine/notifications";
-import { LoadingPage } from "../LoadingPage";
+import { getUser } from "../../api/userServlet";
+import { User } from "../../api/User";
 
 const useStyles = createStyles((theme, _params, getRef) => ({
 	sendButton: {
@@ -35,10 +33,11 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 interface Props {
 	myId: string;
+	id: string;
+	displayName?: string;
 }
 
-export function UserFeedback(props: Props) {
-	const { id } = useParams();
+export function Feedback(props: Props) {
 	const { classes } = useStyles();
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = React.useState<boolean>(true);
@@ -46,20 +45,31 @@ export function UserFeedback(props: Props) {
 		UserFeedbackData | undefined
 	>(undefined);
 	const [message, setMessage] = React.useState<string>("");
+	const [user, setUser] = React.useState<User | undefined>(undefined);
 
-	const userId = id || feedback?.userId;
-	const isThisMe = props.myId === userId;
+	const isThisMe = props.myId === props.id;
+
+	async function getUserInfo() {
+		setIsLoading(true);
+		try {
+			const user = await getUser(props.id);
+			setUser(user.data);
+		} catch (error) {
+			setUser(undefined);
+		} finally {
+			setIsLoading(false);
+		}
+	}
 
 	React.useEffect(() => {
-		if (id) {
-			loadFeedback();
-		}
+		loadFeedback();
+		getUserInfo();
 	}, []);
 
 	async function loadFeedback() {
 		setIsLoading(true);
 		try {
-			const feedback = await getFeedback(id!);
+			const feedback = await getFeedback(props.id);
 			setFeedback(feedback.data);
 		} catch (error) {
 			showNotification({
@@ -79,7 +89,7 @@ export function UserFeedback(props: Props) {
 
 		try {
 			await postFeedback(feedback?._id!, {
-				userId: userId!,
+				userId: props.id,
 				fromId: props.myId,
 				message,
 			});
@@ -101,28 +111,23 @@ export function UserFeedback(props: Props) {
 		}
 	}
 
-	if (isLoading) {
-		return <LoadingPage />;
-	}
-
 	return (
-		<>
-			{/*
-				<Navbar height={55} p="xs" withBorder zIndex={99}>
-					<Group position="center">
-						<Button variant="subtle">Feedback</Button>
-						<Button variant="subtle">Listings</Button>
-					</Group>
-				</Navbar>
-			*/}
-			<Container size="xs" px="xs">
+		<Navbar
+			p="xs"
+			width={{ sm: 350 }}
+			hiddenBreakpoint={"sm"}
+			hidden
+			zIndex={100}
+		>
+			<Navbar.Section mt="xs">
 				<Stack spacing="xl">
 					<Skeleton visible={isLoading}>
 						<Center>
-							<Title order={1}>{id}</Title>
+							<Title order={1}>
+								{user?.displayName || props.id}
+							</Title>
 						</Center>
 					</Skeleton>
-
 					{isThisMe ? null : (
 						<InputButtonPair>
 							<Textarea
@@ -147,32 +152,34 @@ export function UserFeedback(props: Props) {
 							</ActionIcon>
 						</InputButtonPair>
 					)}
-
-					<Skeleton visible={isLoading}>
-						{_.isEmpty(feedback?.feedback) ? (
-							<Center>User has no feedback</Center>
-						) : null}
-						{_.map(feedback?.feedback, (singleFeedback, key) => {
-							return (
-								<Box key={key}>
-									<Text fz="xs">
-										<Anchor
-											onClick={() =>
-												navigate(
-													`/users/${singleFeedback.fromId}`
-												)
-											}
-										>
-											{singleFeedback.fromId}
-										</Anchor>
-									</Text>
-									{singleFeedback.message} <Divider my="sm" />
-								</Box>
-							);
-						})}
-					</Skeleton>
 				</Stack>
-			</Container>
-		</>
+			</Navbar.Section>
+
+			<Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
+				<Stack spacing="xl">
+					{_.isEmpty(feedback?.feedback) ? (
+						<Center>User has no feedback</Center>
+					) : null}
+					{_.map(feedback?.feedback, (singleFeedback, key) => {
+						return (
+							<Box key={key}>
+								<Text fz="xs">
+									<Anchor
+										onClick={() =>
+											navigate(
+												`/users/${singleFeedback.fromId}`
+											)
+										}
+									>
+										{singleFeedback.fromId}
+									</Anchor>
+								</Text>
+								{singleFeedback.message} <Divider my="sm" />
+							</Box>
+						);
+					})}
+				</Stack>
+			</Navbar.Section>
+		</Navbar>
 	);
 }
