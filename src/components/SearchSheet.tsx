@@ -132,7 +132,7 @@ export function SearchSheet(props: Props) {
 							fit="contain"
 							width={150}
 							height={100}
-							src=""
+							src={listing.image}
 							alt="Random unsplash image"
 							withPlaceholder
 						/>

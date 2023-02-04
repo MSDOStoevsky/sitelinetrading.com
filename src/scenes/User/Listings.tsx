@@ -6,7 +6,9 @@ import {
 	Pagination,
 	Skeleton,
 	Stack,
+	createStyles,
 	TextInput,
+	MediaQuery,
 } from "@mantine/core";
 import { ListingCard } from "../../components/ListingCard";
 import { SearchExpression } from "../../api/SearchExpression";
@@ -14,23 +16,31 @@ import _ from "lodash";
 import { deleteProduct, searchAllProducts } from "../../api";
 import { ApiPaginatedSearchResponse } from "../../api/ApiPaginatedSearchResponse";
 import { Product } from "../../api/Product";
-import { IconPencil } from "@tabler/icons";
+import { IconLayoutSidebar, IconPencil } from "@tabler/icons";
 import { Link } from "react-router-dom";
 import { BaseProps } from "../../utils/BaseProps";
 import { EditListingModal } from "./EditListingModal";
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
 import { showNotification } from "@mantine/notifications";
 import { DateTime } from "luxon";
+import { InputButtonPair } from "../../components/InputButtonPair";
 
 interface Props extends BaseProps {
 	myId: string;
 	id: string;
+	openFeedbackDrawer(): void;
 }
+const useStyles = createStyles((theme, _params, getRef) => ({
+	sendButton: {
+		height: "auto",
+	},
+}));
 
 /**
  * Listings
  */
 export function Listings(props: Props) {
+	const { classes } = useStyles();
 	const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [confirmDeleteId, setConfirmDeleteId] = React.useState<
 		string | undefined
@@ -128,20 +138,37 @@ export function Listings(props: Props) {
 	return (
 		<>
 			<Stack>
-				<TextInput
-					size="lg"
-					placeholder="Filter"
-					value={searchExpresison?.filterExpression!.title as string}
-					onChange={(event) =>
-						setSearchExpression((previousSearchExpression) => ({
-							...previousSearchExpression,
-							filterExpression: {
-								...previousSearchExpression?.filterExpression,
-								title: event.target.value,
-							},
-						}))
-					}
-				/>
+				<InputButtonPair>
+					<MediaQuery largerThan={"xs"} styles={{ display: "none" }}>
+						<ActionIcon
+							className={classes.sendButton}
+							color="blue"
+							title="Send"
+							size="xl"
+							variant="filled"
+							onClick={() => props.openFeedbackDrawer()}
+						>
+							<IconLayoutSidebar />
+						</ActionIcon>
+					</MediaQuery>
+					<TextInput
+						size="lg"
+						className="ReplyForm"
+						placeholder="Filter"
+						value={
+							searchExpresison?.filterExpression!.title as string
+						}
+						onChange={(event) =>
+							setSearchExpression((previousSearchExpression) => ({
+								...previousSearchExpression,
+								filterExpression: {
+									...previousSearchExpression?.filterExpression,
+									title: event.target.value,
+								},
+							}))
+						}
+					/>
+				</InputButtonPair>
 				<Skeleton visible={isLoading}>
 					<Grid>
 						{_.map(listingData?.data, (listing) => {

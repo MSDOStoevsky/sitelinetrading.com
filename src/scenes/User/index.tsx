@@ -14,6 +14,8 @@ interface Props {
 
 export function User(props: Props) {
 	const { id } = useParams();
+	const [isFeedbackDrawerOpen, setIsFeedbackDrawerOpen] =
+		React.useState(false);
 
 	if (!id) {
 		return <NoPage />;
@@ -21,9 +23,18 @@ export function User(props: Props) {
 
 	return (
 		<>
-			<Feedback myId={props.myId} id={id} />
+			<Feedback
+				myId={props.myId}
+				id={id}
+				isFeedbackDrawerOpen={isFeedbackDrawerOpen}
+				closeFeedbackDrawer={() => setIsFeedbackDrawerOpen(false)}
+			/>
 			<Container size="xl" px="xs">
-				<Listings myId={props.myId} id={id} />
+				<Listings
+					myId={props.myId}
+					id={id}
+					openFeedbackDrawer={() => setIsFeedbackDrawerOpen(true)}
+				/>
 			</Container>
 		</>
 	);

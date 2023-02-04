@@ -4,7 +4,6 @@ import {
 	ActionIcon,
 	Textarea,
 	createStyles,
-	Paper,
 	MediaQuery,
 	TextInput,
 	Button,
@@ -226,6 +225,7 @@ export function MessageCenter(props: Props) {
 								filterExpression: {
 									...oldSearchExpression.filterExpression,
 									userIds: event.target.value,
+									displayName: event.target.value,
 								},
 							};
 						});
@@ -285,6 +285,7 @@ export function MessageCenter(props: Props) {
 										filterExpression: {
 											...oldSearchExpression.filterExpression,
 											userIds: event.target.value,
+											displayName: event.target.value,
 										},
 									};
 								});
@@ -381,7 +382,10 @@ export function MessageCenter(props: Props) {
 						className="ReplyForm"
 						placeholder={
 							targetUserId
-								? `Message user ${targetUserId}`
+								? `Message user ${
+										displayNames[targetUserId] ||
+										targetUserId
+								  }`
 								: "No user to send to"
 						}
 						value={message}

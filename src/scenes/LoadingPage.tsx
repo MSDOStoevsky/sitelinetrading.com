@@ -1,4 +1,4 @@
-import { Center, Loader, Title } from "@mantine/core";
+import { Center, Loader } from "@mantine/core";
 import * as React from "react";
 
 export function LoadingPage() {

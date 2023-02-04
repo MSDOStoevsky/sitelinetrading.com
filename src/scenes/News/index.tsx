@@ -25,6 +25,23 @@ export function News() {
 			<Container size="xs" px="xs">
 				<Stack>
 					<ReleaseEntry>
+						<Title order={2}>1.14.2023</Title>
+						<Text>
+							Brief update... I will be using an image hosting
+							application that is definitely not my first choice.
+							I'd encourage you to check them out, notably their{" "}
+							<a href="https://cloudinary.com/privacy">
+								privacy policy
+							</a>
+							, and then make an informed decision about how you
+							post your images on this site. I have every
+							intention of hosting images myself, but that will
+							take more time, and I would like this platform
+							avaialble sooner than later considering all the
+							events unfolding this year.
+						</Text>
+					</ReleaseEntry>
+					<ReleaseEntry>
 						<Title order={2}>1.7.2023</Title>
 						<Text>
 							Hi, everyone! Thanks for joining me in this project.
@@ -41,7 +58,7 @@ export function News() {
 								I will do nothing to sacrifice user privacy. I
 								do not store payment, location, or browsing
 								habits. (Note, though, I must store your login
-								session for practical reasons)
+								session for practical reasons).
 							</List.Item>
 							<List.Item>
 								I have no plans to collect subscription fees (I

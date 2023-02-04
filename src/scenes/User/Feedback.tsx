@@ -7,6 +7,7 @@ import {
 	Container,
 	createStyles,
 	Divider,
+	Drawer,
 	Navbar,
 	ScrollArea,
 	Skeleton,
@@ -35,6 +36,8 @@ interface Props {
 	myId: string;
 	id: string;
 	displayName?: string;
+	isFeedbackDrawerOpen: boolean;
+	closeFeedbackDrawer(): void;
 }
 
 export function Feedback(props: Props) {
@@ -111,75 +114,83 @@ export function Feedback(props: Props) {
 		}
 	}
 
-	return (
-		<Navbar
-			p="xs"
-			width={{ sm: 350 }}
-			hiddenBreakpoint={"sm"}
-			hidden
-			zIndex={100}
-		>
-			<Navbar.Section mt="xs">
-				<Stack spacing="xl">
-					<Skeleton visible={isLoading}>
-						<Center>
-							<Title order={1}>
-								{user?.displayName || props.id}
-							</Title>
-						</Center>
-					</Skeleton>
-					{isThisMe ? null : (
-						<InputButtonPair>
-							<Textarea
-								className="ReplyForm"
-								placeholder="Your feedback"
-								disabled={isLoading}
-								onChange={(event) =>
-									setMessage(event.target.value)
+	const feedbackHeader = (
+		<Stack spacing="xl">
+			<Skeleton visible={isLoading}>
+				<Center>
+					<Title order={1}>{user?.displayName || props.id}</Title>
+				</Center>
+			</Skeleton>
+			{isThisMe ? null : (
+				<InputButtonPair>
+					<Textarea
+						className="ReplyForm"
+						placeholder="Your feedback"
+						disabled={isLoading}
+						onChange={(event) => setMessage(event.target.value)}
+					/>
+
+					<ActionIcon
+						className={classes.sendButton}
+						color="blue"
+						title="Send"
+						size="xl"
+						variant="filled"
+						onClick={sendFeedback}
+						disabled={isLoading || !message}
+					>
+						<IconSend />
+					</ActionIcon>
+				</InputButtonPair>
+			)}
+		</Stack>
+	);
+
+	const feedbackBody = (
+		<Stack spacing="xl">
+			{_.isEmpty(feedback?.feedback) ? (
+				<Center>User has no feedback</Center>
+			) : null}
+			{_.map(feedback?.feedback, (singleFeedback, key) => {
+				return (
+					<Box key={key}>
+						<Text fz="xs">
+							<Anchor
+								onClick={() =>
+									navigate(`/users/${singleFeedback.fromId}`)
 								}
-							/>
-
-							<ActionIcon
-								className={classes.sendButton}
-								color="blue"
-								title="Send"
-								size="xl"
-								variant="filled"
-								onClick={sendFeedback}
-								disabled={isLoading || !message}
 							>
-								<IconSend />
-							</ActionIcon>
-						</InputButtonPair>
-					)}
-				</Stack>
-			</Navbar.Section>
-
-			<Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
-				<Stack spacing="xl">
-					{_.isEmpty(feedback?.feedback) ? (
-						<Center>User has no feedback</Center>
-					) : null}
-					{_.map(feedback?.feedback, (singleFeedback, key) => {
-						return (
-							<Box key={key}>
-								<Text fz="xs">
-									<Anchor
-										onClick={() =>
-											navigate(
-												`/users/${singleFeedback.fromId}`
-											)
-										}
-									>
-										{singleFeedback.fromId}
-									</Anchor>
-								</Text>
-								{singleFeedback.message} <Divider my="sm" />
-							</Box>
-						);
-					})}
-				</Stack>
-			</Navbar.Section>
-		</Navbar>
+								{singleFeedback.fromId}
+							</Anchor>
+						</Text>
+						{singleFeedback.message} <Divider my="sm" />
+					</Box>
+				);
+			})}
+		</Stack>
+	);
+	return (
+		<>
+			<Drawer
+				opened={props.isFeedbackDrawerOpen}
+				onClose={() => props.closeFeedbackDrawer()}
+				padding="xs"
+			>
+				{feedbackHeader}
+				{feedbackBody}
+			</Drawer>
+			<Navbar
+				p="xs"
+				width={{ sm: 350 }}
+				hiddenBreakpoint={"sm"}
+				hidden
+				zIndex={100}
+			>
+				<Navbar.Section mt="xs">{feedbackHeader}</Navbar.Section>
+				<Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
+					{feedbackBody}
+				</Navbar.Section>
+			</Navbar>
+		</>
 	);
 }

@@ -96,6 +96,7 @@ export function TopNav(props: Props) {
 
 	const generalMenuItems = (
 		<>
+			<Menu.Label>1.0.0-alpha</Menu.Label>
 			<Menu.Item
 				component={Link}
 				to="/news"
@@ -113,7 +114,7 @@ export function TopNav(props: Props) {
 			<Menu.Item
 				component="a"
 				target="_blank"
-				href="https://github.com/MSDOStoevsky/sitelinetradingpost.com/releases"
+				href="https://github.com/MSDOStoevsky/sitelinetrading.com/releases"
 				icon={<IconBrandGithub size={15} />}
 				rightSection={<IconExternalLink size={15} />}
 			>
@@ -122,7 +123,7 @@ export function TopNav(props: Props) {
 			<Menu.Item
 				component="a"
 				target="_blank"
-				href="https://github.com/MSDOStoevsky/sitelinetradingpost.com/releases"
+				href="https://www.buymeacoffee.com/MSDOStoevsky"
 				icon={<IconCurrencyDollar size={15} />}
 				rightSection={<IconExternalLink size={15} />}
 			>
@@ -232,7 +233,7 @@ export function TopNav(props: Props) {
 						<Anchor
 							inherit
 							onClick={() => {
-								navigate(`news/`);
+								navigate(`/`);
 							}}
 						>
 							Siteline
