@@ -8,6 +8,7 @@ import { searchAllProducts } from "../../api";
 import { ApiPaginatedSearchResponse } from "../../api/ApiPaginatedSearchResponse";
 import { Product } from "../../api/Product";
 import { SearchEntry } from "../../App";
+import { Helmet } from "react-helmet";
 
 const defaultOrderExpression: OrderExpression = {
 	field: "createdTimestamp",
@@ -60,6 +61,9 @@ export function Listings(props: Props) {
 
 	return (
 		<>
+			<Helmet>
+				<title>Siteline Trading | Search Products</title>
+			</Helmet>
 			<MediaQuery largerThan={"sm"} styles={{ display: "none" }}>
 				<ListingToolbar
 					direction="row"

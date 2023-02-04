@@ -18,6 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import _ from "lodash";
 import { IconSend } from "@tabler/icons";
 import { showNotification } from "@mantine/notifications";
+import { Helmet } from "react-helmet";
 
 const Wrapper = styled.div`
 	min-width: 10rem;
@@ -46,6 +47,9 @@ export function Listing(props: Props) {
 	}
 	return (
 		<Wrapper>
+			<Helmet>
+				<title>Siteline Trading | {listingData?.title}</title>
+			</Helmet>
 			<Grid grow gutter="xl">
 				<Grid.Col sm={12} lg={6}>
 					<ListingDetailImage

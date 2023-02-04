@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import { IconBrandGithub, IconCurrencyDollar } from "@tabler/icons";
 import styled from "@emotion/styled";
+import { Helmet } from "react-helmet";
 
 const ReleaseEntry = styled(Stack)`
 	.mantine-Modal-title {
@@ -22,6 +23,9 @@ const ReleaseEntry = styled(Stack)`
 export function News() {
 	return (
 		<>
+			<Helmet>
+				<title>Siteline Trading | News</title>
+			</Helmet>
 			<Container size="xs" px="xs">
 				<Stack>
 					<ReleaseEntry>

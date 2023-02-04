@@ -23,6 +23,7 @@ import { getThread, postMessage, searchThreads, startThread } from "../../api";
 import { InputButtonPair } from "../../components/InputButtonPair";
 import { MessageSearchExpression } from "../../api/MessageSearchExpression";
 import { getUsers } from "../../api/userServlet";
+import { Helmet } from "react-helmet";
 
 const MessageCenterWrapper = styled.div`
 	height: 100%;
@@ -210,200 +211,214 @@ export function MessageCenter(props: Props) {
 	}
 
 	return (
-		<MessageCenterWrapper>
-			<Drawer
-				opened={isDrawerOpen}
-				onClose={() => setIsDrawerOpen(false)}
-				padding="xs"
-			>
-				<TextInput
-					placeholder="Filter"
-					onChange={(event) => {
-						setSearchExpression((oldSearchExpression) => {
-							return {
-								...oldSearchExpression,
-								filterExpression: {
-									...oldSearchExpression.filterExpression,
-									userIds: event.target.value,
-									displayName: event.target.value,
-								},
-							};
-						});
-					}}
-					pb="xs"
-				/>
-				{!id && userQueryParam ? (
-					<Button
-						variant="filled"
-						fullWidth
-						rightIcon={<IconPencil />}
-					>
-						{userQueryParam}
-					</Button>
-				) : null}
-				<Stack>
-					{_.map(availableThreads, (thread) => {
-						const threadId = thread._id;
-						const targetUserFromThread = getTargetUserFromThread(
-							thread,
-							props.myId
-						)!;
-						return (
-							<Button
-								key={threadId}
-								variant={threadId === id ? "filled" : "subtle"}
-								fullWidth
-								onClick={() => {
-									navigate(
-										`/account/message-center/${threadId}`
-									);
-									setIsDrawerOpen(false);
-								}}
-							>
-								{displayNames[targetUserFromThread] ||
-									targetUserFromThread}
-							</Button>
-						);
-					})}
-				</Stack>
-			</Drawer>
-			<MediaQuery smallerThan={"xs"} styles={{ display: "none" }}>
-				<Navbar
-					p="xs"
-					width={{ sm: 350 }}
-					hiddenBreakpoint={"sm"}
-					hidden
-					zIndex={100}
+		<>
+			<Helmet>
+				<title>Siteline Trading | Messages</title>
+			</Helmet>
+			<MessageCenterWrapper>
+				<Drawer
+					opened={isDrawerOpen}
+					onClose={() => setIsDrawerOpen(false)}
+					padding="xs"
 				>
-					<Navbar.Section mt="xs" mb="xs">
-						<TextInput
-							placeholder="Filter"
-							onChange={(event) => {
-								setSearchExpression((oldSearchExpression) => {
-									return {
-										...oldSearchExpression,
-										filterExpression: {
-											...oldSearchExpression.filterExpression,
-											userIds: event.target.value,
-											displayName: event.target.value,
-										},
-									};
-								});
-							}}
-						/>
-						{!id && userQueryParam ? (
-							<Button
-								variant="filled"
-								fullWidth
-								rightIcon={<IconPencil />}
-							>
-								{userQueryParam}
-							</Button>
-						) : null}
-					</Navbar.Section>
+					<TextInput
+						placeholder="Filter"
+						onChange={(event) => {
+							setSearchExpression((oldSearchExpression) => {
+								return {
+									...oldSearchExpression,
+									filterExpression: {
+										...oldSearchExpression.filterExpression,
+										userIds: event.target.value,
+										displayName: event.target.value,
+									},
+								};
+							});
+						}}
+						pb="xs"
+					/>
+					{!id && userQueryParam ? (
+						<Button
+							variant="filled"
+							fullWidth
+							rightIcon={<IconPencil />}
+						>
+							{userQueryParam}
+						</Button>
+					) : null}
+					<Stack>
+						{_.map(availableThreads, (thread) => {
+							const threadId = thread._id;
+							const targetUserFromThread =
+								getTargetUserFromThread(thread, props.myId)!;
+							return (
+								<Button
+									key={threadId}
+									variant={
+										threadId === id ? "filled" : "subtle"
+									}
+									fullWidth
+									onClick={() => {
+										navigate(
+											`/account/message-center/${threadId}`
+										);
+										setIsDrawerOpen(false);
+									}}
+								>
+									{displayNames[targetUserFromThread] ||
+										targetUserFromThread}
+								</Button>
+							);
+						})}
+					</Stack>
+				</Drawer>
+				<MediaQuery smallerThan={"xs"} styles={{ display: "none" }}>
+					<Navbar
+						p="xs"
+						width={{ sm: 350 }}
+						hiddenBreakpoint={"sm"}
+						hidden
+						zIndex={100}
+					>
+						<Navbar.Section mt="xs" mb="xs">
+							<TextInput
+								placeholder="Filter"
+								onChange={(event) => {
+									setSearchExpression(
+										(oldSearchExpression) => {
+											return {
+												...oldSearchExpression,
+												filterExpression: {
+													...oldSearchExpression.filterExpression,
+													userIds: event.target.value,
+													displayName:
+														event.target.value,
+												},
+											};
+										}
+									);
+								}}
+							/>
+							{!id && userQueryParam ? (
+								<Button
+									variant="filled"
+									fullWidth
+									rightIcon={<IconPencil />}
+								>
+									{userQueryParam}
+								</Button>
+							) : null}
+						</Navbar.Section>
 
-					<Navbar.Section
-						grow
-						component={ScrollArea}
-						mx="-xs"
-						px="xs"
+						<Navbar.Section
+							grow
+							component={ScrollArea}
+							mx="-xs"
+							px="xs"
+						>
+							<Stack>
+								{_.map(availableThreads, (thread) => {
+									const threadId = thread._id;
+									const targetUserFromThread =
+										getTargetUserFromThread(
+											thread,
+											props.myId
+										)!;
+									return (
+										<Button
+											key={threadId}
+											variant={
+												threadId === id
+													? "filled"
+													: "subtle"
+											}
+											fullWidth
+											onClick={() => {
+												navigate(
+													`/account/message-center/${threadId}`
+												);
+											}}
+										>
+											{displayNames[
+												targetUserFromThread
+											] || targetUserFromThread}
+										</Button>
+									);
+								})}
+							</Stack>
+						</Navbar.Section>
+					</Navbar>
+				</MediaQuery>
+				<MessageView>
+					<ChatWindow
+						viewportRef={(node) => onViewportRefAvailable(node)}
 					>
 						<Stack>
-							{_.map(availableThreads, (thread) => {
-								const threadId = thread._id;
-								const targetUserFromThread =
-									getTargetUserFromThread(
-										thread,
-										props.myId
-									)!;
-								return (
-									<Button
-										key={threadId}
-										variant={
-											threadId === id
-												? "filled"
-												: "subtle"
-										}
-										fullWidth
-										onClick={() => {
-											navigate(
-												`/account/message-center/${threadId}`
-											);
-										}}
-									>
-										{displayNames[targetUserFromThread] ||
-											targetUserFromThread}
-									</Button>
-								);
-							})}
+							{thread &&
+								_(thread.chat)
+									.sortBy((chat) => chat.timestamp)
+									.map((chat) => {
+										return (
+											<Chat
+												key={_.uniqueId("chat")}
+												timestamp={chat.timestamp}
+												message={chat.message}
+												user={
+													displayNames[chat.userId] ||
+													chat.userId
+												}
+												isMe={
+													chat.userId === props.myId
+												}
+											/>
+										);
+									})
+									.value()}
 						</Stack>
-					</Navbar.Section>
-				</Navbar>
-			</MediaQuery>
-			<MessageView>
-				<ChatWindow
-					viewportRef={(node) => onViewportRefAvailable(node)}
-				>
-					<Stack>
-						{thread &&
-							_(thread.chat)
-								.sortBy((chat) => chat.timestamp)
-								.map((chat) => {
-									return (
-										<Chat
-											key={_.uniqueId("chat")}
-											timestamp={chat.timestamp}
-											message={chat.message}
-											user={
-												displayNames[chat.userId] ||
-												chat.userId
-											}
-											isMe={chat.userId === props.myId}
-										/>
-									);
-								})
-								.value()}
-					</Stack>
-				</ChatWindow>
-				<InputButtonPair>
-					<MediaQuery largerThan={"xs"} styles={{ display: "none" }}>
+					</ChatWindow>
+					<InputButtonPair>
+						<MediaQuery
+							largerThan={"xs"}
+							styles={{ display: "none" }}
+						>
+							<ActionIcon
+								className={classes.sendButton}
+								color="blue"
+								title="Send"
+								size="xl"
+								variant="filled"
+								onClick={() => setIsDrawerOpen(true)}
+							>
+								<IconLayoutSidebar />
+							</ActionIcon>
+						</MediaQuery>
+						<Textarea
+							className="ReplyForm"
+							placeholder={
+								targetUserId
+									? `Message user ${
+											displayNames[targetUserId] ||
+											targetUserId
+									  }`
+									: "No user to send to"
+							}
+							value={message}
+							onChange={(event) => setMessage(event.target.value)}
+						/>
 						<ActionIcon
 							className={classes.sendButton}
 							color="blue"
 							title="Send"
 							size="xl"
 							variant="filled"
-							onClick={() => setIsDrawerOpen(true)}
+							onClick={sendMessage}
+							disabled={!id && !targetUserId}
 						>
-							<IconLayoutSidebar />
+							<IconSend />
 						</ActionIcon>
-					</MediaQuery>
-					<Textarea
-						className="ReplyForm"
-						placeholder={
-							targetUserId
-								? `Message user ${
-										displayNames[targetUserId] ||
-										targetUserId
-								  }`
-								: "No user to send to"
-						}
-						value={message}
-						onChange={(event) => setMessage(event.target.value)}
-					/>
-					<ActionIcon
-						className={classes.sendButton}
-						color="blue"
-						title="Send"
-						size="xl"
-						variant="filled"
-						onClick={sendMessage}
-						disabled={!id && !targetUserId}
-					>
-						<IconSend />
-					</ActionIcon>
-				</InputButtonPair>
-			</MessageView>
-		</MessageCenterWrapper>
+					</InputButtonPair>
+				</MessageView>
+			</MessageCenterWrapper>
+		</>
 	);
 }

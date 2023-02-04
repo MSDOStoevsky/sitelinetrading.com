@@ -6,6 +6,7 @@ import { Listings } from "./Listings";
 import { useParams } from "react-router-dom";
 import { NoPage } from "../NoPage";
 import { User } from "../../api/User";
+import { Helmet } from "react-helmet";
 
 interface Props {
 	myId: string;
@@ -23,6 +24,9 @@ export function User(props: Props) {
 
 	return (
 		<>
+			<Helmet>
+				<title>Siteline Trading | User {props.myId}</title>
+			</Helmet>
 			<Feedback
 				myId={props.myId}
 				id={id}
