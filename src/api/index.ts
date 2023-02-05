@@ -7,7 +7,7 @@ import { Product } from "./Product";
 import { SearchExpression } from "./SearchExpression";
 import { StartThread } from "./Thread";
 import { UserLoginRequest } from "./UserLoginRequest";
-const LOCAL_API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "http://sitelinetrading.com:8000";
 
 const commonHeaders = {
 	headers: { 
@@ -19,7 +19,7 @@ export async function createUser(
 	signupForm: CreateUserRequest
 ): Promise<any> {
 	return axios
-		.post(`${LOCAL_API_BASE_URL}/user/`, signupForm, commonHeaders)
+		.post(`${API_BASE_URL}/user/`, signupForm, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -32,7 +32,7 @@ export async function login(
 	loginRequest: UserLoginRequest
 ): Promise<any> {
 	return axios
-		.post(`${LOCAL_API_BASE_URL}/user/login`, loginRequest, commonHeaders)
+		.post(`${API_BASE_URL}/user/login`, loginRequest, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -45,7 +45,7 @@ export async function login(
 	product: FormData,
 ): Promise<any> {
 	return axios
-		.post(`${LOCAL_API_BASE_URL}/product/`, product, {
+		.post(`${API_BASE_URL}/product/`, product, {
 			headers: {
 				"Content-Type": `multipart/form-data`,
 				...commonHeaders.headers
@@ -64,7 +64,7 @@ export async function updateProduct(
 	product: FormData
 ): Promise<any> {
 	return axios
-		.patch(`${LOCAL_API_BASE_URL}/product/${productId}`, product, commonHeaders)
+		.patch(`${API_BASE_URL}/product/${productId}`, product, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -77,7 +77,7 @@ export async function deleteProduct(
 	productId: string
 ): Promise<any> {
 	return axios
-		.delete(`${LOCAL_API_BASE_URL}/product/${productId}`, commonHeaders)
+		.delete(`${API_BASE_URL}/product/${productId}`, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -90,7 +90,7 @@ export async function deleteProduct(
 	productId: string
 ): Promise<any> {
 	return axios
-		.get(`${LOCAL_API_BASE_URL}/product/${productId}`, commonHeaders)
+		.get(`${API_BASE_URL}/product/${productId}`, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -103,7 +103,7 @@ export async function searchAllProducts(
 	searchExpression: SearchExpression
 ): Promise<ApiPaginatedSearchResponse<Product>> {
 	return axios
-		.post(`${LOCAL_API_BASE_URL}/product/search`, searchExpression, commonHeaders)
+		.post(`${API_BASE_URL}/product/search`, searchExpression, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -118,7 +118,7 @@ export async function getFeedback(
 	userId: string,
 ): Promise<any> {
 	return axios
-		.get(`${LOCAL_API_BASE_URL}/feedback/${userId}`, commonHeaders)
+		.get(`${API_BASE_URL}/feedback/${userId}`, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -131,7 +131,7 @@ export async function getFeedback(
 	feedbackId: string | undefined,
 	message: { userId: string, fromId: string, message: string }
 ): Promise<ApiPaginatedSearchResponse<Product>> {
-	let url = `${LOCAL_API_BASE_URL}/feedback/`;
+	let url = `${API_BASE_URL}/feedback/`;
 	if ( feedbackId ) {
 		url = `${url}${feedbackId}`;
 	}
@@ -149,7 +149,7 @@ export async function getFeedback(
 	threadId: string
 ): Promise<any> {
 	return axios
-		.get(`${LOCAL_API_BASE_URL}/message/${threadId}`, commonHeaders)
+		.get(`${API_BASE_URL}/message/${threadId}`, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -163,7 +163,7 @@ export async function getFeedback(
 	message: { message: string, userId: string }
 ): Promise<any> {
 	return axios
-		.post(`${LOCAL_API_BASE_URL}/message/${threadId}`, message, commonHeaders)
+		.post(`${API_BASE_URL}/message/${threadId}`, message, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -176,7 +176,7 @@ export async function startThread(
 	thread: StartThread
 ): Promise<any> {
 	return axios
-		.post(`${LOCAL_API_BASE_URL}/message`, thread, commonHeaders)
+		.post(`${API_BASE_URL}/message`, thread, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
@@ -194,7 +194,7 @@ export async function startThread(
 	searchExpression: MessageSearchExpression
 ): Promise<any> {
 	return axios
-	.post(`${LOCAL_API_BASE_URL}/message/search`, searchExpression, commonHeaders)
+	.post(`${API_BASE_URL}/message/search`, searchExpression, commonHeaders)
 		.then(function(response) {
 			return response.data;
 		})
