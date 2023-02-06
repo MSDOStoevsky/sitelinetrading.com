@@ -19,6 +19,7 @@ import _ from "lodash";
 import { IconSend } from "@tabler/icons";
 import { showNotification } from "@mantine/notifications";
 import { Helmet } from "react-helmet";
+import { LoadingPage } from "../LoadingPage";
 
 const Wrapper = styled.div`
 	min-width: 10rem;
@@ -43,7 +44,7 @@ export function Listing(props: Props) {
 	}, [id]);
 
 	if (!listingData) {
-		return <div>"loading"</div>;
+		return <LoadingPage />;
 	}
 	return (
 		<Wrapper>
