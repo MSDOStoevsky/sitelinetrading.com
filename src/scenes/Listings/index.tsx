@@ -101,7 +101,6 @@ export function Listings(props: Props) {
 				zIndex={100}
 				filterExpression={searchExpression.filterExpression}
 				onFilterChange={(filterState) => {
-					console.log(filterState);
 					setSearchExpression((oldSearchExpression) => ({
 						...oldSearchExpression,
 						filterExpression: filterState,

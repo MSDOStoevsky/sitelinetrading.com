@@ -11,6 +11,7 @@ import {
 	Select,
 	Alert,
 	NativeSelect,
+	NumberInput,
 } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { IconCurrencyDollar, IconInfoCircle, IconSend } from "@tabler/icons";
@@ -35,7 +36,7 @@ interface Props {
 const defaultProduct = {
 	title: "",
 	description: "",
-	value: "",
+	value: undefined,
 	openToTrade: false,
 };
 
@@ -173,18 +174,19 @@ export function Post(props: Props) {
 						}}
 					/>
 
-					<TextInput
+					<NumberInput
 						placeholder="Value"
 						label="Value"
 						withAsterisk
 						icon={<IconCurrencyDollar size={16} />}
 						value={product.value}
-						onChange={(event) =>
+						onChange={(value) =>
 							setProduct((product) => ({
 								...product,
-								value: event.target.value,
+								value: value,
 							}))
 						}
+						min={0}
 					/>
 
 					<Switch

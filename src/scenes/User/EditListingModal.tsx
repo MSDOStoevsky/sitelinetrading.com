@@ -12,6 +12,7 @@ import {
 	Image,
 	Select,
 	NativeSelect,
+	NumberInput,
 } from "@mantine/core";
 import _ from "lodash";
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
@@ -38,7 +39,7 @@ export function EditListingModal(props: Props) {
 		title: "",
 		description: "",
 		state: "",
-		value: "",
+		value: undefined,
 		openToTrade: true,
 	});
 
@@ -69,7 +70,6 @@ export function EditListingModal(props: Props) {
 				formData.append("file", files[0], fileName);
 			}
 			formData.append("data", JSON.stringify(product));
-			console.log(formData, files);
 			await updateProduct(props.listingDetails._id!, formData);
 
 			showNotification({
@@ -167,18 +167,19 @@ export function EditListingModal(props: Props) {
 					}}
 				/>
 
-				<TextInput
+				<NumberInput
 					placeholder="Value"
 					label="Value"
 					icon={<IconCurrencyDollar size={16} />}
 					withAsterisk
 					value={product.value}
-					onChange={(event) =>
+					onChange={(value) =>
 						setProduct((product) => ({
 							...product,
-							value: event.target.value,
+							value: value,
 						}))
 					}
+					min={0}
 				/>
 
 				<Switch
