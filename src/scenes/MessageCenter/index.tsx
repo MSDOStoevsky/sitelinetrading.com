@@ -65,6 +65,7 @@ export function MessageCenter(props: Props) {
 	const navigate = useNavigate();
 	const refQueryParam = new URLSearchParams(search).get("ref");
 	const userQueryParam = new URLSearchParams(search).get("user");
+	const [chatRefreshInterval, setChatRefreshInterval] = React.useState<any>();
 	const [isDrawerOpen, setIsDrawerOpen] = React.useState<boolean>(false);
 	const [thread, setThread] = React.useState<Thread | undefined>(undefined);
 	// const [isLoading, setIsLoading] = React.useState<boolean>(true);
@@ -109,6 +110,19 @@ export function MessageCenter(props: Props) {
 	const targetUserId = thread
 		? getTargetUserFromThread(thread, props.myId)
 		: userQueryParam;
+
+	React.useEffect(() => {
+		const loadthreadInterval = setInterval(() => {
+			if (id) {
+				loadThread();
+			}
+		}, 2000);
+		setChatRefreshInterval({ intervalId: loadthreadInterval });
+
+		return () => {
+			clearInterval(chatRefreshInterval);
+		};
+	}, []);
 
 	React.useEffect(() => {
 		loadThread();
