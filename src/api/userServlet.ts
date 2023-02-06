@@ -1,5 +1,5 @@
 
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 
 const LOCAL_API_BASE_URL = "http://sitelinetrading.com:8000/user";
 const commonHeaders = {
@@ -8,10 +8,10 @@ const commonHeaders = {
 	}
 }
 
-export async function getMe(
+export async function getMe(overrideHeaders?: AxiosRequestConfig
     ): Promise<any> {
         return axios
-            .get(`${LOCAL_API_BASE_URL}/me`, commonHeaders)
+            .get(`${LOCAL_API_BASE_URL}/me`, overrideHeaders || commonHeaders)
             .then(function(response) {
                 return response.data;
             })

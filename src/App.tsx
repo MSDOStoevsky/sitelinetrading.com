@@ -43,7 +43,13 @@ export function App() {
 
 	async function login() {
 		try {
-			const me = await getMe();
+			const me = await getMe({
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem(
+						"sitelineKey"
+					)}`,
+				},
+			});
 			setMe(me.data);
 		} catch (error) {
 			setMe(undefined);

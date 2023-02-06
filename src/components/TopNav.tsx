@@ -216,6 +216,7 @@ export function TopNav(props: Props) {
 					<Menu.Item component={Link} to="/news/">
 						News
 					</Menu.Item>
+					<Menu.Divider />
 				</>
 				{!!props.userId ? isLoggedInMenuItems : isLoggedOutMenuItems}
 			</Menu.Dropdown>
@@ -223,7 +224,7 @@ export function TopNav(props: Props) {
 	);
 
 	return (
-		<TopNavWrapper height={60} p="xs">
+		<TopNavWrapper height={60} p="xs" zIndex={101}>
 			<MediaQuery
 				smallerThan={"xs"}
 				styles={{ display: "none !important" }}

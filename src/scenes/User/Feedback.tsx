@@ -67,7 +67,7 @@ export function Feedback(props: Props) {
 	React.useEffect(() => {
 		loadFeedback();
 		getUserInfo();
-	}, []);
+	}, [props.id]);
 
 	async function loadFeedback() {
 		setIsLoading(true);
@@ -147,7 +147,7 @@ export function Feedback(props: Props) {
 	);
 
 	const feedbackBody = (
-		<Stack spacing="xl">
+		<Stack spacing="xl" pt="xl">
 			{_.isEmpty(feedback?.feedback) ? (
 				<Center>User has no feedback</Center>
 			) : null}

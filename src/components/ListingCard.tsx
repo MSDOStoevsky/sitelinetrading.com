@@ -18,6 +18,10 @@ const useStyles = createStyles(() => ({
 	clickableSection: {
 		cursor: "pointer",
 	},
+	priceLabel: {
+		textOverflow: "ellipsis",
+		overflow: "hidden",
+	},
 }));
 
 export interface Props extends Product {
@@ -74,7 +78,9 @@ export function ListingCard(props: Props) {
 			</Card.Section>
 			<Card.Section inheritPadding py="xs">
 				<Group position="apart" mb="xs">
-					<Title order={3}>${props.value}</Title>
+					<Title order={3} className={classes.priceLabel}>
+						${props.value}
+					</Title>
 					{props.openToTrade ? (
 						<Badge color="pink" variant="light">
 							open to trade

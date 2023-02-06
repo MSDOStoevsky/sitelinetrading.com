@@ -7,12 +7,10 @@ import {
 	Title,
 	Modal,
 	Kbd,
-	Button,
 	Text,
-	Skeleton,
 	Select,
 	ScrollArea,
-	Loader,
+	createStyles,
 } from "@mantine/core";
 import styled from "@emotion/styled";
 import _ from "lodash";
@@ -25,8 +23,8 @@ import { Product } from "../api/Product";
 import { STATE_ABBREVIATIONS } from "../utils/constants";
 import { SearchEntry } from "../App";
 import { LoadingPage } from "../scenes/LoadingPage";
-import { Search } from "../utils/commonStyles";
 import { showNotification } from "@mantine/notifications";
+import { useMediaQuery } from "@mantine/hooks";
 
 interface Props {
 	isOpen: boolean;
@@ -67,6 +65,45 @@ const SearchSuggestion = styled.div`
 	}
 `;
 
+const useStyles = createStyles((theme, _params, getRef) => ({
+	columnSearch: {
+		display: "flex",
+		flexDirection: "column",
+		" .Input": {
+			flex: 1,
+			input: {
+				borderBottomLeftRadius: "0px",
+				borderBottomRightRadius: "0px",
+			},
+		},
+		" .State": {
+			flex: 1,
+			input: {
+				borderTopLeftRadius: "0px",
+				borderTopRightRadius: "0px",
+			},
+		},
+	},
+	rowSearch: {
+		display: "flex",
+		flexDirection: "row",
+		" .Input": {
+			flex: 4,
+			input: {
+				borderTopRightRadius: "0px",
+				borderBottomRightRadius: "0px",
+			},
+		},
+		" .State": {
+			flex: 1,
+			input: {
+				borderTopLeftRadius: "0px",
+				borderBottomLeftRadius: "0px",
+			},
+		},
+	},
+}));
+
 export function SearchSheet(props: Props) {
 	const [text, setText] = React.useState(props.searchEntry.text);
 	const [state, setState] = React.useState<string>(props.searchEntry.state);
@@ -74,11 +111,16 @@ export function SearchSheet(props: Props) {
 	const [listingSuggestions, setListingSuggestions] = React.useState<
 		ApiPaginatedSearchResponse<Product> | undefined
 	>(undefined);
+	const isSmallScreen = useMediaQuery("(max-width: 576px)");
+	const { classes } = useStyles();
 
 	React.useEffect(() => {
+		if (!props.isOpen) {
+			return;
+		}
 		getPreviews();
 		props.onChange({ text, state });
-	}, [text, state]);
+	}, [text, state, props.isOpen]);
 
 	async function getPreviews() {
 		setIsLoading(true);
@@ -164,7 +206,10 @@ export function SearchSheet(props: Props) {
 			withCloseButton={false}
 			overflow="inside"
 			title={
-				<Search
+				<div
+					className={
+						isSmallScreen ? classes.columnSearch : classes.rowSearch
+					}
 					onKeyUp={(event) => {
 						if (event.key === "Enter") {
 							props.onSearch({
@@ -197,7 +242,7 @@ export function SearchSheet(props: Props) {
 							setState(value || "");
 						}}
 					/>
-				</Search>
+				</div>
 			}
 		>
 			<Center>

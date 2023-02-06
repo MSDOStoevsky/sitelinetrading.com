@@ -9,6 +9,7 @@ import { ApiPaginatedSearchResponse } from "../../api/ApiPaginatedSearchResponse
 import { Product } from "../../api/Product";
 import { SearchEntry } from "../../App";
 import { Helmet } from "react-helmet";
+import { LoadingPage } from "../LoadingPage";
 
 const defaultOrderExpression: OrderExpression = {
 	field: "createdTimestamp",
@@ -59,6 +60,9 @@ export function Listings(props: Props) {
 		}));
 	}, [props.searchEntry]);
 
+	if (!listingData) {
+		return <LoadingPage />;
+	}
 	return (
 		<>
 			<Helmet>
@@ -111,7 +115,7 @@ export function Listings(props: Props) {
 				}}
 			/>
 
-			<Stack>
+			<Stack mt={{ base: "3rem", sm: "0" }}>
 				<Grid>
 					{_.map(listingData?.data, (listing) => {
 						return (
