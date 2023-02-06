@@ -224,7 +224,7 @@ export function TopNav(props: Props) {
 	);
 
 	return (
-		<TopNavWrapper height={60} p="xs" zIndex={101}>
+		<TopNavWrapper height={60} p="xs" zIndex={100}>
 			<MediaQuery
 				smallerThan={"xs"}
 				styles={{ display: "none !important" }}

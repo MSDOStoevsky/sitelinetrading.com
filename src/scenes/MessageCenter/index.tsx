@@ -69,7 +69,9 @@ export function MessageCenter(props: Props) {
 	const [thread, setThread] = React.useState<Thread | undefined>(undefined);
 	// const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [message, setMessage] = React.useState<string>(
-		refQueryParam ? `Regarding ${refQueryParam}...` : ""
+		refQueryParam
+			? `Regarding http://sitelinetrading.com/listings/${refQueryParam}...`
+			: ""
 	);
 	const [displayNames, setDisplayNames] = React.useState<
 		Record<string, string>

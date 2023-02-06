@@ -60,7 +60,7 @@ export function Listing(props: Props) {
 				</Grid.Col>
 				<Grid.Col sm={12} lg={6}>
 					<Paper shadow="xs" radius="lg" p="xl" m="sm">
-						<Stack>
+						<Stack sx={{ wordBreak: "break-all" }}>
 							<Title order={1}>{listingData?.title}</Title>
 							<Title order={6}>
 								<Anchor
