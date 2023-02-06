@@ -76,7 +76,9 @@ export function Listing(props: Props) {
 										listingData?.userId}
 									{", "}
 									{listingData?.state}
-								</Anchor>{" "}
+								</Anchor>
+							</Title>
+							<Title order={6}>
 								Last updated{" "}
 								{new Intl.DateTimeFormat("en-US", {
 									dateStyle: "long",
@@ -85,7 +87,6 @@ export function Listing(props: Props) {
 									listingData?.updatedTimestamp || Date.now()
 								)}
 							</Title>
-							<Title order={6}></Title>
 
 							<Group mb="xs">
 								<Title order={2}>${listingData?.value}</Title>

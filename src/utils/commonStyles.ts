@@ -21,4 +21,10 @@ export const Search = styled.div`
             border-bottom-left-radius: 0px;
         }
     }
+
+    @media (max-width: 576px): {
+        .State {
+            display: none;
+        }
+    }
 `;
