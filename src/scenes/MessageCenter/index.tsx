@@ -130,7 +130,7 @@ export function MessageCenter(props: Props) {
 
 	React.useEffect(() => {
 		loadAvailableThreads();
-	}, [searchExpression]);
+	}, [searchExpression, id]);
 
 	React.useEffect(() => {
 		const foundThread = _.find(availableThreads, (availableThread) => {
