@@ -7,7 +7,7 @@ import { Product } from "./Product";
 import { SearchExpression } from "./SearchExpression";
 import { StartThread } from "./Thread";
 import { UserLoginRequest } from "./UserLoginRequest";
-const API_BASE_URL = "http://sitelinetrading.com:8000";
+const API_BASE_URL = "https://sitelinetrading.com:8000";
 
 const commonHeaders = {
 	headers: { 

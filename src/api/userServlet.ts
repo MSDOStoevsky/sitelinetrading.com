@@ -1,7 +1,7 @@
 
 import axios, { AxiosRequestConfig } from "axios";
 
-const LOCAL_API_BASE_URL = "http://sitelinetrading.com:8000/user";
+const LOCAL_API_BASE_URL = "https://sitelinetrading.com:8000/user";
 const commonHeaders = {
 	headers: { 
 		'Authorization': `Bearer ${localStorage.getItem("sitelineKey")}`
