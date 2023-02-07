@@ -72,6 +72,7 @@ export function Listings(props: Props) {
 				<ListingToolbar
 					direction="row"
 					p="xs"
+					spacing="space-evenly"
 					position={{ top: 0, left: 0 }}
 					height={55}
 					withBorder

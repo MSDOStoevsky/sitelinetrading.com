@@ -24,6 +24,9 @@ const NavbarWrapper = styled(Navbar)`
 	flex-direction: ${(props: Props) => {
 		return props.direction;
 	}};
+	justify-content: ${(props: Props) => {
+		return props.spacing;
+	}};
 `;
 
 const Dropdown = styled(Popover.Dropdown)`
@@ -33,6 +36,8 @@ const Dropdown = styled(Popover.Dropdown)`
 
 interface Props extends Omit<NavbarProps, "children"> {
 	direction: "row" | "column";
+
+	spacing?: "space-evenly";
 
 	filterExpression: Record<string, string | boolean> | undefined;
 

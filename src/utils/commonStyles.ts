@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 export const Search = styled.div`
     display: flex;
     flex-direction: row;
-
+    
     .Input {
         flex: 4;
 
@@ -22,9 +22,4 @@ export const Search = styled.div`
         }
     }
 
-    @media (max-width: 576px): {
-        .State {
-            display: none;
-        }
-    }
 `;

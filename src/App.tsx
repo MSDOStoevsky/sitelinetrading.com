@@ -17,6 +17,7 @@ import { User as UserInterface } from "./api/User";
 import { LoadingPage } from "./scenes/LoadingPage";
 import { getMe } from "./api/userServlet";
 import { Legal } from "./scenes/Legal";
+import { resetHeader } from "./api";
 
 export interface SearchEntry {
 	text: string;
@@ -50,6 +51,7 @@ export function App() {
 					)}`,
 				},
 			});
+			resetHeader(localStorage.getItem("sitelineKey") as string);
 			setMe(me.data);
 		} catch (error) {
 			setMe(undefined);
@@ -67,7 +69,7 @@ export function App() {
 			padding="xl"
 			header={
 				<TopNav
-					userId={myUserId}
+					userId={me?.userId}
 					onLoginClick={() => {
 						setIsLoginDialogOpen(true);
 					}}
@@ -110,7 +112,7 @@ export function App() {
 								isLoggedIn={isLoggedIn}
 							>
 								<User
-									myId={myUserId!}
+									myId={me?.userId!}
 									displayName={me?.displayName}
 								/>
 							</ProtectedRoute>
@@ -118,7 +120,7 @@ export function App() {
 					/>
 					<Route
 						path="listings/:id"
-						element={<Listing myId={myUserId} />}
+						element={<Listing myId={me?.userId} />}
 					/>
 					<Route
 						path="post"
@@ -127,7 +129,7 @@ export function App() {
 								onProhibited={() => setIsLoginDialogOpen(true)}
 								isLoggedIn={isLoggedIn}
 							>
-								<Post myId={myUserId!} />
+								<Post myId={me?.userId!} />
 							</ProtectedRoute>
 						}
 					/>
@@ -138,7 +140,7 @@ export function App() {
 								onProhibited={() => setIsLoginDialogOpen(true)}
 								isLoggedIn={isLoggedIn}
 							>
-								<MessageCenter myId={myUserId!} />
+								<MessageCenter myId={me?.userId!} />
 							</ProtectedRoute>
 						}
 					/>
@@ -149,7 +151,7 @@ export function App() {
 								onProhibited={() => setIsLoginDialogOpen(true)}
 								isLoggedIn={isLoggedIn}
 							>
-								<MessageCenter myId={myUserId!} />
+								<MessageCenter myId={me?.userId!} />
 							</ProtectedRoute>
 						}
 					/>

@@ -40,7 +40,7 @@ export function ListingCard(props: Props) {
 			<Card.Section inheritPadding py="xs">
 				<Group position={props.isEditable ? "apart" : undefined} noWrap>
 					<Title weight={500} order={3}>
-						{props.title}
+						{props.title}, {props.state || "N/A"}
 					</Title>
 					{props.isEditable ? (
 						<Group position="right" noWrap>
@@ -89,8 +89,7 @@ export function ListingCard(props: Props) {
 				</Group>
 				<Group position="apart">
 					<Anchor onClick={() => navigate(`/users/${props.userId}`)}>
-						{props.displayName || props.userId},{" "}
-						{props.state || "N/A"}
+						User: {props.displayName || props.userId}
 					</Anchor>
 					{props.expiresIn ? (
 						<div>Expires in {_.floor(props.expiresIn)} days</div>

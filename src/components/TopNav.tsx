@@ -7,6 +7,11 @@ import {
 	ActionIcon,
 	Anchor,
 	MediaQuery,
+	Drawer,
+	Button,
+	Stack,
+	Divider,
+	Text,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
@@ -93,6 +98,8 @@ export function TopNav(props: Props) {
 	let searchInputRef = React.useRef<null | HTMLInputElement>(null);
 	const navigate = useNavigate();
 	const isMobile = useMediaQuery("(max-width: 768px)");
+	const [isMobileDrawerOpen, setIsMobileDrawerOpen] =
+		React.useState<boolean>(false);
 
 	const generalMenuItems = (
 		<>
@@ -114,11 +121,11 @@ export function TopNav(props: Props) {
 			<Menu.Item
 				component="a"
 				target="_blank"
-				href="https://github.com/MSDOStoevsky/sitelinetrading.com/releases"
+				href="https://github.com/MSDOStoevsky/sitelinetrading.com/"
 				icon={<IconBrandGithub size={15} />}
 				rightSection={<IconExternalLink size={15} />}
 			>
-				Changelog
+				GitHub
 			</Menu.Item>
 			<Menu.Item
 				component="a"
@@ -254,15 +261,21 @@ export function TopNav(props: Props) {
 						ref={searchInputRef ? searchInputRef : undefined}
 						onFocus={() => setIsSearchDrawerOpen(true)}
 					/>
-					<TextInput
-						rightSection={<IconSelector />}
-						value={searchEntry.state}
-						className="State"
-						size={"md"}
-						placeholder="State"
-						readOnly
-						onFocus={() => setIsSearchDrawerOpen(true)}
-					/>
+
+					<MediaQuery
+						query="(max-width: 768px)"
+						styles={{ display: "none" }}
+					>
+						<TextInput
+							rightSection={<IconSelector />}
+							value={searchEntry.state}
+							className="State"
+							size={"md"}
+							placeholder="State"
+							readOnly
+							onFocus={() => setIsSearchDrawerOpen(true)}
+						/>
+					</MediaQuery>
 				</Search>
 				<SearchSheet
 					searchEntry={searchEntry}
@@ -286,8 +299,147 @@ export function TopNav(props: Props) {
 						<IconPencil />
 					</ActionIcon>
 				) : null}
-				{isMobile ? menuOnMobile : desktopMenu}
+				{isMobile ? (
+					<ActionIcon
+						size="lg"
+						title="menu"
+						onClick={() => setIsMobileDrawerOpen(true)}
+					>
+						<IconMenu />
+					</ActionIcon>
+				) : (
+					desktopMenu
+				)}
 			</RightContent>
+			<Drawer
+				opened={isMobileDrawerOpen}
+				onClose={() => setIsMobileDrawerOpen(false)}
+				title="Menu"
+				padding="xl"
+				size="full"
+				position="top"
+			>
+				<Stack>
+					<Button
+						component={Link}
+						to="/post"
+						color="gray"
+						fullWidth
+						onClick={() => setIsMobileDrawerOpen(false)}
+					>
+						Post
+					</Button>
+					<Divider />
+					<Text>1.0.0-alpha</Text>
+					<Button
+						component={Link}
+						to="/news"
+						leftIcon={<IconRadio size={15} />}
+						color="gray"
+						fullWidth
+						onClick={() => setIsMobileDrawerOpen(false)}
+					>
+						News
+					</Button>
+					<Button
+						component={Link}
+						to="/legal"
+						leftIcon={<IconQuestionMark size={15} />}
+						color="gray"
+						fullWidth
+						onClick={() => setIsMobileDrawerOpen(false)}
+					>
+						FAQ/Legal
+					</Button>
+					<Button
+						component="a"
+						target="_blank"
+						href="https://github.com/MSDOStoevsky/sitelinetrading.com/"
+						leftIcon={<IconBrandGithub size={15} />}
+						rightIcon={<IconExternalLink size={15} />}
+						color="gray"
+						fullWidth
+						onClick={() => setIsMobileDrawerOpen(false)}
+					>
+						GitHub
+					</Button>
+					<Button
+						component="a"
+						target="_blank"
+						href="https://www.buymeacoffee.com/MSDOStoevsky"
+						leftIcon={<IconCurrencyDollar size={15} />}
+						rightIcon={<IconExternalLink size={15} />}
+						color="gray"
+						onClick={() => setIsMobileDrawerOpen(false)}
+					>
+						Contribute
+					</Button>
+					<Menu.Divider />
+
+					{!!props.userId ? (
+						<>
+							<Text>{props.userId}</Text>
+							<Button
+								component={Link}
+								to={`/users/${props.userId}`}
+								color="gray"
+								onClick={() => setIsMobileDrawerOpen(false)}
+							>
+								Me
+							</Button>
+							<Button
+								component={Link}
+								to="/account/message-center"
+								color="gray"
+								onClick={() => setIsMobileDrawerOpen(false)}
+							>
+								Messages
+							</Button>
+							<Button
+								component={Link}
+								to="/account/account-settings"
+								color="gray"
+								onClick={() => setIsMobileDrawerOpen(false)}
+							>
+								Settings
+							</Button>
+							<Button
+								leftIcon={<IconLogout size={15} />}
+								color="red"
+								onClick={() => {
+									setIsMobileDrawerOpen(false);
+									props.onLogoutClick();
+								}}
+							>
+								Log out
+							</Button>
+						</>
+					) : (
+						<>
+							<Button
+								leftIcon={<IconLogin size={15} />}
+								color="gray"
+								onClick={() => {
+									setIsMobileDrawerOpen(false);
+									props.onLoginClick();
+								}}
+							>
+								Log in
+							</Button>
+							<Button
+								leftIcon={<IconEdit size={15} />}
+								color="gray"
+								onClick={() => {
+									setIsMobileDrawerOpen(false);
+									props.onSignupClick();
+								}}
+							>
+								Sign up
+							</Button>
+						</>
+					)}
+				</Stack>
+			</Drawer>
 		</TopNavWrapper>
 	);
 }

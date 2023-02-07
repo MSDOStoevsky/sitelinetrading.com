@@ -36,26 +36,18 @@ interface Props {
 const defaultProduct = {
 	title: "",
 	description: "",
+	state: "AK",
 	value: undefined,
 	openToTrade: false,
 };
 
 export function Post(props: Props) {
+	console.log(props.myId);
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [files, setFiles] = React.useState<FileWithPath[]>([]);
 	const [product, setProduct] =
 		React.useState<Partial<Product>>(defaultProduct);
-	const [me, setMe] = React.useState<User | undefined>(undefined);
-
-	React.useEffect(() => {
-		loadUser();
-	}, []);
-
-	async function loadUser() {
-		setMe((await getMe()).data);
-		setIsLoading(false);
-	}
 
 	async function submitPost() {
 		setIsLoading(true);
@@ -69,7 +61,7 @@ export function Post(props: Props) {
 				"data",
 				JSON.stringify({
 					...product,
-					userId: me?.userId,
+					userId: props.myId,
 				})
 			);
 			const addProductResult = await addProduct(formData);
@@ -116,7 +108,9 @@ export function Post(props: Props) {
 				<title>Siteline Trading | Post</title>
 			</Helmet>
 			<Container size="xs" px="xs">
-				<LoadingOverlay visible={isLoading} overlayBlur={2} />
+				<div style={{ position: "relative" }}>
+					<LoadingOverlay visible={isLoading} overlayBlur={2} />
+				</div>
 				<Stack>
 					<Dropzone accept={IMAGE_MIME_TYPE} onDrop={setFiles}>
 						<Text align="center">Drop images here</Text>

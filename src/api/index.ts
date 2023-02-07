@@ -9,17 +9,24 @@ import { StartThread } from "./Thread";
 import { UserLoginRequest } from "./UserLoginRequest";
 const API_BASE_URL = "https://sitelinetrading.com:8000";
 
+axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem("sitelineKey")}`;
+
+export function resetHeader(key: string) {
+	axios.defaults.headers.common['Authorization'] = `Bearer ${key}`;
+}
+
+/*
 const commonHeaders = {
 	headers: { 
 		'Authorization': `Bearer ${localStorage.getItem("sitelineKey")}`
 	}
-}
+}*/
 
 export async function createUser(
 	signupForm: CreateUserRequest
 ): Promise<any> {
 	return axios
-		.post(`${API_BASE_URL}/user/`, signupForm, commonHeaders)
+		.post(`${API_BASE_URL}/user/`, signupForm)
 		.then(function(response) {
 			return response.data;
 		})
@@ -32,7 +39,7 @@ export async function login(
 	loginRequest: UserLoginRequest
 ): Promise<any> {
 	return axios
-		.post(`${API_BASE_URL}/user/login`, loginRequest, commonHeaders)
+		.post(`${API_BASE_URL}/user/login`, loginRequest)
 		.then(function(response) {
 			return response.data;
 		})
@@ -47,8 +54,7 @@ export async function login(
 	return axios
 		.post(`${API_BASE_URL}/product/`, product, {
 			headers: {
-				"Content-Type": `multipart/form-data`,
-				...commonHeaders.headers
+				"Content-Type": `multipart/form-data`
 			}
 		})
 		.then(function(response) {
@@ -64,7 +70,7 @@ export async function updateProduct(
 	product: FormData
 ): Promise<any> {
 	return axios
-		.patch(`${API_BASE_URL}/product/${productId}`, product, commonHeaders)
+		.patch(`${API_BASE_URL}/product/${productId}`, product)
 		.then(function(response) {
 			return response.data;
 		})
@@ -77,7 +83,7 @@ export async function deleteProduct(
 	productId: string
 ): Promise<any> {
 	return axios
-		.delete(`${API_BASE_URL}/product/${productId}`, commonHeaders)
+		.delete(`${API_BASE_URL}/product/${productId}`)
 		.then(function(response) {
 			return response.data;
 		})
@@ -90,7 +96,7 @@ export async function deleteProduct(
 	productId: string
 ): Promise<any> {
 	return axios
-		.get(`${API_BASE_URL}/product/${productId}`, commonHeaders)
+		.get(`${API_BASE_URL}/product/${productId}`)
 		.then(function(response) {
 			return response.data;
 		})
@@ -103,7 +109,7 @@ export async function searchAllProducts(
 	searchExpression: SearchExpression
 ): Promise<ApiPaginatedSearchResponse<Product>> {
 	return axios
-		.post(`${API_BASE_URL}/product/search`, searchExpression, commonHeaders)
+		.post(`${API_BASE_URL}/product/search`, searchExpression)
 		.then(function(response) {
 			return response.data;
 		})
@@ -118,7 +124,7 @@ export async function getFeedback(
 	userId: string,
 ): Promise<any> {
 	return axios
-		.get(`${API_BASE_URL}/feedback/${userId}`, commonHeaders)
+		.get(`${API_BASE_URL}/feedback/${userId}`)
 		.then(function(response) {
 			return response.data;
 		})
@@ -136,7 +142,7 @@ export async function getFeedback(
 		url = `${url}${feedbackId}`;
 	}
 	return axios
-		.post(url, message, commonHeaders)
+		.post(url, message)
 		.then(function(response) {
 			return response.data;
 		})
@@ -149,7 +155,7 @@ export async function getFeedback(
 	threadId: string
 ): Promise<any> {
 	return axios
-		.get(`${API_BASE_URL}/message/${threadId}`, commonHeaders)
+		.get(`${API_BASE_URL}/message/${threadId}`)
 		.then(function(response) {
 			return response.data;
 		})
@@ -163,7 +169,7 @@ export async function getFeedback(
 	message: { message: string, userId: string }
 ): Promise<any> {
 	return axios
-		.post(`${API_BASE_URL}/message/${threadId}`, message, commonHeaders)
+		.post(`${API_BASE_URL}/message/${threadId}`, message)
 		.then(function(response) {
 			return response.data;
 		})
@@ -176,7 +182,7 @@ export async function startThread(
 	thread: StartThread
 ): Promise<any> {
 	return axios
-		.post(`${API_BASE_URL}/message`, thread, commonHeaders)
+		.post(`${API_BASE_URL}/message`, thread)
 		.then(function(response) {
 			return response.data;
 		})
@@ -194,7 +200,7 @@ export async function startThread(
 	searchExpression: MessageSearchExpression
 ): Promise<any> {
 	return axios
-	.post(`${API_BASE_URL}/message/search`, searchExpression, commonHeaders)
+	.post(`${API_BASE_URL}/message/search`, searchExpression)
 		.then(function(response) {
 			return response.data;
 		})
