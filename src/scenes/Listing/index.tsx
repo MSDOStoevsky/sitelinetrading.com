@@ -118,7 +118,7 @@ export function Listing(props: Props) {
 											});
 										} else {
 											navigate(
-												`/account/message-center/?user=${listingData?.userId}&ref=${listingData?._id}`
+												`/account/message-center/${listingData?.userId}&ref=${listingData?._id}`
 											);
 										}
 									}}

@@ -8,7 +8,6 @@ import {
 	SimpleGrid,
 	Switch,
 	LoadingOverlay,
-	Select,
 	Alert,
 	NativeSelect,
 	NumberInput,
@@ -22,11 +21,9 @@ import { addProduct } from "../../api";
 import { Product } from "../../api/Product";
 import { isFormValid } from "../../utils/isFormValid";
 import { showNotification } from "@mantine/notifications";
-import { User } from "../../api/User";
 import { STATE_ABBREVIATIONS } from "../../utils/constants";
 import FormData from "form-data";
 import { useNavigate } from "react-router-dom";
-import { getMe } from "../../api/userServlet";
 import { Helmet } from "react-helmet";
 
 interface Props {
@@ -42,9 +39,8 @@ const defaultProduct = {
 };
 
 export function Post(props: Props) {
-	console.log(props.myId);
 	const navigate = useNavigate();
-	const [isLoading, setIsLoading] = React.useState<boolean>(true);
+	const [isLoading, setIsLoading] = React.useState<boolean>(false);
 	const [files, setFiles] = React.useState<FileWithPath[]>([]);
 	const [product, setProduct] =
 		React.useState<Partial<Product>>(defaultProduct);
@@ -107,10 +103,8 @@ export function Post(props: Props) {
 			<Helmet>
 				<title>Siteline Trading | Post</title>
 			</Helmet>
+			<LoadingOverlay visible={isLoading} overlayBlur={2} />
 			<Container size="xs" px="xs">
-				<div style={{ position: "relative" }}>
-					<LoadingOverlay visible={isLoading} overlayBlur={2} />
-				</div>
 				<Stack>
 					<Dropzone accept={IMAGE_MIME_TYPE} onDrop={setFiles}>
 						<Text align="center">Drop images here</Text>

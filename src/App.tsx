@@ -67,6 +67,9 @@ export function App() {
 	return (
 		<AppShell
 			padding="xl"
+			style={{
+				position: "relative"
+			}}
 			header={
 				<TopNav
 					userId={me?.userId}
