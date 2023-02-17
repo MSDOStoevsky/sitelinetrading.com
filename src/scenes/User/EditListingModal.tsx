@@ -5,12 +5,10 @@ import {
 	TextInput,
 	Text,
 	Stack,
-	Center,
 	Switch,
 	SimpleGrid,
 	Textarea,
 	Image,
-	Select,
 	NativeSelect,
 	NumberInput,
 } from "@mantine/core";
@@ -70,7 +68,7 @@ export function EditListingModal(props: Props) {
 				formData.append("file", files[0], fileName);
 			}
 			formData.append("data", JSON.stringify(product));
-			await updateProduct(props.listingDetails._id!, formData);
+			await updateProduct(props.listingDetails.id!, formData);
 
 			showNotification({
 				title: "Success",

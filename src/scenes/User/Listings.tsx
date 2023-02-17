@@ -64,9 +64,16 @@ export function Listings(props: Props) {
 		});
 
 	const isThisMe = props.myId === props.id;
+	
+	const debouncedLoadProducts = React.useMemo(
+		() => _.debounce(() => {
+			loadProducts();
+	  }, 500),
+		[]
+	  );
 
 	React.useEffect(() => {
-		loadProducts();
+		debouncedLoadProducts();
 	}, [searchExpresison]);
 
 	React.useEffect(() => {
@@ -183,7 +190,7 @@ export function Listings(props: Props) {
 									sm={6}
 									md={6}
 									lg={3}
-									key={listing._id}
+									key={listing.id}
 								>
 									<ListingCard
 										{...listing}
@@ -192,7 +199,7 @@ export function Listings(props: Props) {
 											setListingDetails(listing)
 										}
 										onDelete={() =>
-											setConfirmDeleteId(listing._id)
+											setConfirmDeleteId(listing.id)
 										}
 										expiresIn={expiresInDays}
 									/>

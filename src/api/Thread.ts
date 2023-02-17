@@ -1,12 +1,15 @@
 export interface Thread {
-    _id: string;
-    userIds: [string, string];
-    chat: Array<Chat>;
+    id: string;
+    userId1: string;
+    userId2: string;
+    displayName: string;
+    displayName2: string
 }
 
 export interface Chat {
     timestamp: number;
     message: string;
+    displayName: string;
     userId: string;
 }
 
@@ -21,6 +24,7 @@ export interface ChatForPost {
 }
 
 export interface StartThread {
-    userIds: [string, string];
-    initialMessage: Omit<Chat, "timestamp">;
+    myId: string;
+    userId: string;
+    initialMessage: string;
 }

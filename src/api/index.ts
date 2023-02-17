@@ -134,13 +134,9 @@ export async function getFeedback(
 }
 
  export async function postFeedback(
-	feedbackId: string | undefined,
 	message: { userId: string, fromId: string, message: string }
 ): Promise<ApiPaginatedSearchResponse<Product>> {
 	let url = `${API_BASE_URL}/feedback/`;
-	if ( feedbackId ) {
-		url = `${url}${feedbackId}`;
-	}
 	return axios
 		.post(url, message)
 		.then(function(response) {

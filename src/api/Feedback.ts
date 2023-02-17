@@ -1,7 +1,9 @@
 export interface UserFeedback {
-    _id: string;
+    id: string;
     userId: string;
-    feedback: Array<Feedback>;
+    fromId: string;
+    message: string;
+    timestamp: number;
 }
 
 export interface Feedback {

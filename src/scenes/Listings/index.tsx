@@ -27,7 +27,7 @@ export function Listings(props: Props) {
 	const [searchExpression, setSearchExpression] =
 		React.useState<SearchExpression>({
 			page: 0,
-			pageSize: 50,
+			pageSize: 40,
 			filterExpression: props.searchEntry
 				? {
 						title: props.searchEntry.text,
@@ -119,7 +119,7 @@ export function Listings(props: Props) {
 				<Grid>
 					{_.map(listingData?.data, (listing) => {
 						return (
-							<Grid.Col sm={6} md={6} lg={3} key={listing._id}>
+							<Grid.Col sm={6} md={6} lg={3} key={listing.id}>
 								<ListingCard {...listing} />
 							</Grid.Col>
 						);

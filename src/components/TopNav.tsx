@@ -284,8 +284,7 @@ export function TopNav(props: Props) {
 						setIsSearchDrawerOpen(false);
 						searchInputRef.current?.blur();
 					}}
-					onSearch={props.onSearch}
-					onChange={setSearchEntry}
+					onSearch={(value) => { props.onSearch(value); setSearchEntry(value) }}
 				/>
 			</CenterContent>
 			<RightContent>

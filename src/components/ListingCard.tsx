@@ -67,7 +67,7 @@ export function ListingCard(props: Props) {
 			<Card.Section
 				className={classes.clickableSection}
 				component="a"
-				onClick={() => navigate(`/listings/${props._id}`)}
+				onClick={() => navigate(`/listings/${props.id}`)}
 			>
 				<Image
 					src={props.image}

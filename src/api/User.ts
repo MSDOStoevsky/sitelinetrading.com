@@ -7,7 +7,7 @@ export interface User {
 	/**
 	 * The unique user Id.
 	 */
-	userId: string;
+	id: string;
 	/**
 	 * The user's linked email address.
 	 */

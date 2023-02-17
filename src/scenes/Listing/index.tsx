@@ -20,6 +20,7 @@ import { IconSend } from "@tabler/icons";
 import { showNotification } from "@mantine/notifications";
 import { Helmet } from "react-helmet";
 import { LoadingPage } from "../LoadingPage";
+import { NoPage } from "../NoPage";
 
 const Wrapper = styled.div`
 	min-width: 10rem;
@@ -33,23 +34,34 @@ interface Props {
 export function Listing(props: Props) {
 	const navigate = useNavigate();
 	const { id } = useParams();
+	const [isLoading, setIsLoading] = React.useState<boolean>(
+		false
+	);
 	const [listingData, setListingData] = React.useState<undefined | Product>(
 		undefined
 	);
 
 	React.useEffect(() => {
+		setIsLoading(true);
 		getSingleProduct(id || "").then((data) => {
 			setListingData(data?.data);
+		}).finally(() => {
+			setIsLoading(false);
 		});
 	}, [id]);
 
-	if (!listingData) {
+	if (isLoading) {
 		return <LoadingPage />;
 	}
+
+	if (!listingData) {
+		return <NoPage />
+	}
+
 	return (
 		<Wrapper>
 			<Helmet>
-				<title>Siteline Trading | {listingData?.title}</title>
+				<title>Siteline Trading | {listingData?.title || "Not Found"}</title>
 			</Helmet>
 			<Grid grow gutter="xl">
 				<Grid.Col sm={12} lg={6}>
@@ -118,7 +130,7 @@ export function Listing(props: Props) {
 											});
 										} else {
 											navigate(
-												`/account/message-center/${listingData?.userId}&ref=${listingData?._id}`
+												`/account/message-center/${listingData?.userId}?ref=${listingData?.id}`
 											);
 										}
 									}}

@@ -18,7 +18,7 @@ interface Props {
 export function AccountSettings(props: Props) {
 	const [immutableAccountSettings, setImmutableAccountSettings] =
 		React.useState<Partial<User>>({
-			userId: "",
+			id: "",
 			createdTimestamp: 0,
 		});
 	const [mutableAccountSettings, setMutableAccountSettings] = React.useState<
@@ -30,9 +30,9 @@ export function AccountSettings(props: Props) {
 	});
 
 	React.useEffect(() => {
-		const { userId, createdTimestamp, ...mutableAccountSettings } =
+		const { id, createdTimestamp, ...mutableAccountSettings } =
 			props.me;
-		setImmutableAccountSettings({ userId, createdTimestamp });
+		setImmutableAccountSettings({ id, createdTimestamp });
 		setMutableAccountSettings(mutableAccountSettings);
 	}, []);
 
@@ -43,7 +43,7 @@ export function AccountSettings(props: Props) {
 			</Helmet>
 			<Container size="xs" px="xs">
 				<Stack spacing="xl">
-					<Title order={1}>{immutableAccountSettings.userId}</Title>
+					<Title order={1}>{immutableAccountSettings.id}</Title>
 
 					<TextInput
 						placeholder="Jon Doe"

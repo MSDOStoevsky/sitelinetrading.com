@@ -45,7 +45,7 @@ export function Feedback(props: Props) {
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = React.useState<boolean>(true);
 	const [feedback, setFeedback] = React.useState<
-		UserFeedbackData | undefined
+		Array<UserFeedbackData> | undefined
 	>(undefined);
 	const [message, setMessage] = React.useState<string>("");
 	const [user, setUser] = React.useState<User | undefined>(undefined);
@@ -91,7 +91,7 @@ export function Feedback(props: Props) {
 		}
 
 		try {
-			await postFeedback(feedback?._id!, {
+			await postFeedback({
 				userId: props.id,
 				fromId: props.myId,
 				message,
@@ -118,7 +118,9 @@ export function Feedback(props: Props) {
 		<Stack spacing="xl">
 			<Skeleton visible={isLoading}>
 				<Center>
-					<Title order={1}>{user?.displayName || props.id}</Title>
+					<Title style={{
+						wordBreak: "break-word"
+					}} order={1}>{user?.displayName || props.id}</Title>
 				</Center>
 			</Skeleton>
 			{isThisMe ? null : (
@@ -148,10 +150,10 @@ export function Feedback(props: Props) {
 
 	const feedbackBody = (
 		<Stack spacing="xl" pt="xl">
-			{_.isEmpty(feedback?.feedback) ? (
+			{_.isEmpty(feedback) ? (
 				<Center>User has no feedback</Center>
 			) : null}
-			{_.map(feedback?.feedback, (singleFeedback, key) => {
+			{_.map(feedback, (singleFeedback, key) => {
 				return (
 					<Box key={key}>
 						<Text fz="xs">

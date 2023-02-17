@@ -38,7 +38,7 @@ export function App() {
 	const [isInitializing, setIsInitializing] = React.useState<boolean>(true);
 	const [me, setMe] = React.useState<UserInterface | undefined>(undefined);
 
-	const myUserId = me?.userId;
+	const myUserId = me?.id;
 
 	const isLoggedIn = !!myUserId;
 
@@ -72,7 +72,7 @@ export function App() {
 			}}
 			header={
 				<TopNav
-					userId={me?.userId}
+					userId={me?.id}
 					onLoginClick={() => {
 						setIsLoginDialogOpen(true);
 					}}
@@ -115,7 +115,7 @@ export function App() {
 								isLoggedIn={isLoggedIn}
 							>
 								<User
-									myId={me?.userId!}
+									myId={me?.id!}
 									displayName={me?.displayName}
 								/>
 							</ProtectedRoute>
@@ -123,7 +123,7 @@ export function App() {
 					/>
 					<Route
 						path="listings/:id"
-						element={<Listing myId={me?.userId} />}
+						element={<Listing myId={me?.id} />}
 					/>
 					<Route
 						path="post"
@@ -132,7 +132,7 @@ export function App() {
 								onProhibited={() => setIsLoginDialogOpen(true)}
 								isLoggedIn={isLoggedIn}
 							>
-								<Post myId={me?.userId!} />
+								<Post myId={me?.id!} />
 							</ProtectedRoute>
 						}
 					/>
@@ -143,7 +143,7 @@ export function App() {
 								onProhibited={() => setIsLoginDialogOpen(true)}
 								isLoggedIn={isLoggedIn}
 							>
-								<MessageCenter myId={me?.userId!} />
+								<MessageCenter myId={me?.id!} />
 							</ProtectedRoute>
 						}
 					/>
@@ -154,7 +154,7 @@ export function App() {
 								onProhibited={() => setIsLoginDialogOpen(true)}
 								isLoggedIn={isLoggedIn}
 							>
-								<MessageCenter myId={me?.userId!} />
+								<MessageCenter myId={me?.id!} />
 							</ProtectedRoute>
 						}
 					/>

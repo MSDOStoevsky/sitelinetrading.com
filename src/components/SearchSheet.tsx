@@ -31,7 +31,7 @@ interface Props {
 	searchEntry: SearchEntry;
 	onClose(): void;
 	onSearch(value: SearchEntry): void;
-	onChange(value: SearchEntry): void;
+	onChange?(value: SearchEntry): void;
 }
 
 const StyledModal = styled(Modal)`
@@ -114,15 +114,27 @@ export function SearchSheet(props: Props) {
 	const isSmallScreen = useMediaQuery("(max-width: 576px)");
 	const { classes } = useStyles();
 
+	const debouncedChangeHandler = React.useMemo(
+	  () => _.debounce((text: string, state: string) => {
+		getPreviews(text, state);
+	}, 500),
+	  []
+	);
+
 	React.useEffect(() => {
 		if (!props.isOpen) {
 			return;
 		}
-		getPreviews();
-		props.onChange({ text, state });
+		debouncedChangeHandler(text, state);
 	}, [text, state, props.isOpen]);
 
-	async function getPreviews() {
+	const close = () => {
+		setText("");
+		setState("");
+		props.onClose();
+	}
+
+	async function getPreviews(text: string, state: string) {
 		setIsLoading(true);
 		try {
 			const searchResults = await searchAllProducts({
@@ -147,8 +159,9 @@ export function SearchSheet(props: Props) {
 		}
 	}
 
-	const ref = useClickOutside(() => props.onClose());
+	const ref = useClickOutside(close);
 	const navigate = useNavigate();
+
 
 	const renderSearchSuggestions = () => {
 		if (!listingSuggestions) {
@@ -163,10 +176,10 @@ export function SearchSheet(props: Props) {
 			return _.map(listingSuggestions.data, (listing) => {
 				return (
 					<SearchSuggestion
-						key={listing._id}
+						key={listing.id}
 						onClick={() => {
-							navigate(`listings/${listing._id}`);
-							props.onClose();
+							navigate(`listings/${listing.id}`);
+							close();
 						}}
 					>
 						<Image
@@ -197,7 +210,7 @@ export function SearchSheet(props: Props) {
 			size={"xl"}
 			opened={props.isOpen}
 			onClose={() => {
-				props.onClose();
+				close();
 			}}
 			overlayOpacity={0.6}
 			overlayColor="#000"
@@ -217,7 +230,7 @@ export function SearchSheet(props: Props) {
 								state: state,
 							});
 							navigate("");
-							props.onClose();
+							close();
 						}
 					}}
 				>
