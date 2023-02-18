@@ -66,14 +66,14 @@ export function Listings(props: Props) {
 	const isThisMe = props.myId === props.id;
 	
 	const debouncedLoadProducts = React.useMemo(
-		() => _.debounce(() => {
-			loadProducts();
+		() => _.debounce((searchExpresison: SearchExpression) => {
+			loadProducts(searchExpresison);
 	  }, 500),
 		[]
 	  );
 
 	React.useEffect(() => {
-		debouncedLoadProducts();
+		debouncedLoadProducts(searchExpresison);
 	}, [searchExpresison]);
 
 	React.useEffect(() => {
@@ -86,7 +86,7 @@ export function Listings(props: Props) {
 		}));
 	}, [props.id]);
 
-	function loadProducts() {
+	function loadProducts(searchExpresison: SearchExpression) {
 		if (!searchExpresison) {
 			return;
 		}
@@ -115,7 +115,7 @@ export function Listings(props: Props) {
 			});
 		} finally {
 			setConfirmDeleteId(undefined);
-			loadProducts();
+			loadProducts(searchExpresison);
 		}
 	}
 
@@ -249,7 +249,7 @@ export function Listings(props: Props) {
 			<EditListingModal
 				listingDetails={listingDetails}
 				onClose={() => setListingDetails(undefined)}
-				onSubmit={() => loadProducts()}
+				onSubmit={() => loadProducts(searchExpresison)}
 			/>
 		</>
 	);
