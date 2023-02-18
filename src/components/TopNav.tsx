@@ -67,6 +67,10 @@ interface Props {
 	 */
 	userId?: string;
 	/**
+	 * The users display name
+	 */
+	displayName?: string;
+	/**
 	 * Called when login is clicked
 	 */
 	onLoginClick(): void;
@@ -161,7 +165,7 @@ export function TopNav(props: Props) {
 	const isLoggedInMenuItems = (
 		<>
 			{generalMenuItems}
-			<Menu.Label>{props.userId}</Menu.Label>
+			<Menu.Label>{props.displayName || props.userId}</Menu.Label>
 			<Menu.Item component={Link} to={`/users/${props.userId}`}>
 				Me
 			</Menu.Item>

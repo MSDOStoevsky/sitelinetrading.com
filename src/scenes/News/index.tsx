@@ -5,11 +5,7 @@ import {
 	Text,
 	Title,
 	List,
-	Paper,
-	ActionIcon,
-	Group,
 } from "@mantine/core";
-import { IconBrandGithub, IconCurrencyDollar } from "@tabler/icons";
 import styled from "@emotion/styled";
 import { Helmet } from "react-helmet";
 

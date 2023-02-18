@@ -73,6 +73,7 @@ export function App() {
 			header={
 				<TopNav
 					userId={me?.id}
+					displayName={me?.displayName}
 					onLoginClick={() => {
 						setIsLoginDialogOpen(true);
 					}}

@@ -11,9 +11,11 @@ interface Message {
 const useStyles = createStyles((theme, _params, getRef) => ({
 	myMessage: {
 		marginLeft: "40%",
+		wordBreak: "break-word"
 	},
 	otherMessage: {
 		marginRight: "40%",
+		wordBreak: "break-word"
 	},
 }));
 

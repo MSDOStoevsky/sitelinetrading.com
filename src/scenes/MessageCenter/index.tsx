@@ -420,7 +420,7 @@ export function MessageCenter(props: Props) {
 							size="xl"
 							variant="filled"
 							onClick={sendMessage}
-							disabled={!id}
+							disabled={!id || !message}
 						>
 							<IconSend />
 						</ActionIcon>
