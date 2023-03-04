@@ -25,6 +25,13 @@ export function News() {
 			<Container size="xs" px="xs">
 				<Stack>
 					<ReleaseEntry>
+						<Title order={2}>3.03.2023</Title>
+						<Text>
+							Latest update is bringing a rudimentary spam flag. This will be verified manually
+							to avoid any targeted removals of posts, things like that.
+						</Text>
+					</ReleaseEntry>
+					<ReleaseEntry>
 						<Title order={2}>1.14.2023</Title>
 						<Text>
 							Brief update... I will be using an image hosting

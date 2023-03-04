@@ -211,29 +211,6 @@ export function TopNav(props: Props) {
 
 	const desktopMenu = !!props.userId ? isLoggedInMenu : defaultMenu;
 
-	const menuOnMobile = (
-		<Menu shadow="md" width={200}>
-			<Menu.Target>
-				<ActionIcon size="lg" title="menu">
-					<IconMenu />
-				</ActionIcon>
-			</Menu.Target>
-
-			<Menu.Dropdown>
-				<>
-					<Menu.Item component={Link} to="/post/">
-						Post
-					</Menu.Item>
-					<Menu.Item component={Link} to="/news/">
-						News
-					</Menu.Item>
-					<Menu.Divider />
-				</>
-				{!!props.userId ? isLoggedInMenuItems : isLoggedOutMenuItems}
-			</Menu.Dropdown>
-		</Menu>
-	);
-
 	return (
 		<TopNavWrapper height={60} p="xs" zIndex={100}>
 			<MediaQuery

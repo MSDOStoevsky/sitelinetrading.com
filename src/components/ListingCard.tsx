@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { Product } from "../api/Product";
 import { useNavigate } from "react-router-dom";
-import { IconPencil, IconTrash } from "@tabler/icons";
+import { IconFlag, IconPencil, IconTrash } from "@tabler/icons";
 import _ from "lodash";
 
 const useStyles = createStyles(() => ({
@@ -25,9 +25,12 @@ const useStyles = createStyles(() => ({
 }));
 
 export interface Props extends Product {
+	myId?: string;
 	isEditable?: boolean;
 	onEdit?(): void;
 	onDelete?(): void;
+	onFlag?(): void;
+	isFlagged?: boolean;
 	expiresIn?: number;
 }
 
@@ -86,6 +89,19 @@ export function ListingCard(props: Props) {
 							open to trade
 						</Badge>
 					) : null}
+					{ props.myId &&
+						<Group position="right" noWrap>
+							<ActionIcon
+								size="lg"
+								variant="subtle"
+								onClick={props.onFlag}
+								disabled={props.isFlagged}
+								title={props.isFlagged ? "You've already flagged this" : "Flag this post as abusive"}
+							>
+								<IconFlag />
+							</ActionIcon>
+						</Group>
+					}
 				</Group>
 				<Group position="apart">
 					<Anchor onClick={() => navigate(`/users/${props.userId}`)}>

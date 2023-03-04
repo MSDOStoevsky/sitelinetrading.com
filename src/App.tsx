@@ -104,7 +104,8 @@ export function App() {
 				<Routes>
 					<Route
 						index
-						element={<Listings searchEntry={searchEntry} />}
+						element={<Listings searchEntry={searchEntry} 
+						myId={me?.id!}/>}
 					/>
 					<Route path="news" element={<News />} />
 					<Route path="legal" element={<Legal />} />

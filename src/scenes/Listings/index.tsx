@@ -10,6 +10,8 @@ import { Product } from "../../api/Product";
 import { SearchEntry } from "../../App";
 import { Helmet } from "react-helmet";
 import { LoadingPage } from "../LoadingPage";
+import { FlagModal } from "../../components/FlagModal";
+import { getFlags } from "../../api/flagServlet";
 
 const defaultOrderExpression: OrderExpression = {
 	field: "createdTimestamp",
@@ -18,6 +20,7 @@ const defaultOrderExpression: OrderExpression = {
 
 interface Props {
 	searchEntry: SearchEntry;
+	myId: string | undefined;
 }
 
 /**
@@ -40,6 +43,14 @@ export function Listings(props: Props) {
 	const [listingData, setListingData] = React.useState<
 		undefined | ApiPaginatedSearchResponse<Product>
 	>(undefined);
+	const [flags, setFlags] = React.useState<
+		undefined | Array<{ productId: string }>
+	>(undefined);
+	const [productOpenForFlag, setProductOpenForFlag] = React.useState<string | undefined>(undefined);
+	
+	React.useEffect(() => {
+		loadFlags();
+	}, []);
 
 	React.useEffect(() => {
 		searchAllProducts(searchExpression).then((data) => {
@@ -59,6 +70,13 @@ export function Listings(props: Props) {
 				: undefined,
 		}));
 	}, [props.searchEntry]);
+	
+	function loadFlags () {
+		props.myId && getFlags(props.myId).then((data) => {
+			console.log(data)
+			setFlags(data.data);
+		});
+	}
 
 	if (!listingData) {
 		return <LoadingPage />;
@@ -120,7 +138,14 @@ export function Listings(props: Props) {
 					{_.map(listingData?.data, (listing) => {
 						return (
 							<Grid.Col sm={6} md={6} lg={3} key={listing.id}>
-								<ListingCard {...listing} />
+								<ListingCard 
+									{...listing}
+									myId={props.myId}
+									onFlag={() => {
+										setProductOpenForFlag(listing.id);
+									}}
+									isFlagged={!!_.find(flags, (flag) => flag.productId === listing.id)}
+								/>
 							</Grid.Col>
 						);
 					})}
@@ -151,6 +176,16 @@ export function Listings(props: Props) {
 					</Center>
 				)}
 			</Stack>
+			<FlagModal
+				userId={props.myId}
+				productToFlag={productOpenForFlag}
+				onAgree={() => {
+					loadFlags();
+					setProductOpenForFlag(undefined);
+				}}
+				onDisagree={() => setProductOpenForFlag(undefined)}
+				onClose={() => setProductOpenForFlag(undefined)}
+			/>
 		</>
 	);
 }

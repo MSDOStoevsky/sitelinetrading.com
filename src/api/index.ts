@@ -7,8 +7,8 @@ import { Product } from "./Product";
 import { SearchExpression } from "./SearchExpression";
 import { StartThread } from "./Thread";
 import { UserLoginRequest } from "./UserLoginRequest";
-const API_BASE_URL = "https://sitelinetrading.com:8000";
 
+const API_BASE_URL = "https://sitelinetrading.com:8000";
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem("sitelineKey")}`;
 
 export function resetHeader(key: string) {
@@ -48,7 +48,7 @@ export async function login(
 		});
 }
 
- export async function addProduct(
+export async function addProduct(
 	product: FormData,
 ): Promise<any> {
 	return axios
@@ -92,7 +92,7 @@ export async function deleteProduct(
 		});
 }
 
- export async function getSingleProduct(
+export async function getSingleProduct(
 	productId: string
 ): Promise<any> {
 	return axios

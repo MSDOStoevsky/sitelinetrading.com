@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Modal, Button, TextInput, Text, Stack, Center } from "@mantine/core";
+import { Modal, Button, TextInput, Text, Stack, Center, Checkbox } from "@mantine/core";
 import _ from "lodash";
 import { useDisclosure } from "@mantine/hooks";
 import { PasswordInputWithSuggestions } from "./PasswordInputWithSuggestions";
@@ -23,6 +23,7 @@ export function SignupDialog(props: Props) {
 		password: "",
 	});
 	const [confirmPassword, setConfirmPassword] = React.useState<string>("");
+	const [agreesToTerms, setAgreesToTerms] = React.useState<boolean>(false);
 	const [visible, { toggle }] = useDisclosure(false);
 	const [errorMessage, setErrorMessage] = React.useState<string | undefined>(
 		undefined
@@ -115,9 +116,16 @@ export function SignupDialog(props: Props) {
 					]}
 				/>
 
+				<Checkbox
+					label="I am over 18"
+					required
+					checked={agreesToTerms}
+					onChange={(event) => setAgreesToTerms(event.target.checked)}
+				/>
+
 				<Button
 					fullWidth
-					disabled={!signupForm.password || !confirmPassword}
+					disabled={!agreesToTerms || !signupForm.password || !confirmPassword}
 					onClick={() => sendSignup()}
 				>
 					Sign up

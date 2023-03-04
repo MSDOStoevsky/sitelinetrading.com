@@ -10,17 +10,20 @@ import {
 	Group,
 	Paper,
 	Anchor,
+	ActionIcon,
 } from "@mantine/core";
 import { ListingDetailImage } from "../../components/ListingDetailImage";
 import { Product } from "../../api/Product";
 import { getSingleProduct } from "../../api";
 import { useNavigate, useParams } from "react-router-dom";
 import _ from "lodash";
-import { IconSend } from "@tabler/icons";
+import { IconFlag, IconSend } from "@tabler/icons";
 import { showNotification } from "@mantine/notifications";
 import { Helmet } from "react-helmet";
 import { LoadingPage } from "../LoadingPage";
 import { NoPage } from "../NoPage";
+import { FlagModal } from "../../components/FlagModal";
+import { getFlags } from "../../api/flagServlet";
 
 const Wrapper = styled.div`
 	min-width: 10rem;
@@ -40,6 +43,14 @@ export function Listing(props: Props) {
 	const [listingData, setListingData] = React.useState<undefined | Product>(
 		undefined
 	);
+	const [productOpenForFlag, setProductOpenForFlag] = React.useState<string | undefined>(undefined);
+	const [flags, setFlags] = React.useState<
+		undefined | Array<{ productId: string }>
+	>(undefined);
+
+	React.useEffect(() => {
+		loadFlags();
+	}, []);
 
 	React.useEffect(() => {
 		setIsLoading(true);
@@ -58,10 +69,18 @@ export function Listing(props: Props) {
 		return <NoPage />
 	}
 
+	function loadFlags () {
+		props.myId && getFlags(props.myId).then((data) => {
+			console.log(data)
+			setFlags(data.data);
+		});
+	}
+
 	return (
 		<Wrapper>
 			<Helmet>
-				<title>Siteline Trading | {listingData?.title || "Not Found"}</title>
+				<title>Siteline Trading | {listingData?.title || id}</title>
+        		<meta name="description" content={listingData?.description}/>
 			</Helmet>
 			<Grid grow gutter="xl">
 				<Grid.Col sm={12} lg={6}>
@@ -139,11 +158,32 @@ export function Listing(props: Props) {
 								>
 									Contact Seller
 								</Button>
+								{ props.myId && (
+									<ActionIcon
+										size="lg"
+										variant="subtle"
+										onClick={() => {
+											setProductOpenForFlag(listingData?.id);
+										}}
+									>
+										<IconFlag />
+									</ActionIcon>
+								)}
 							</Group>
 						</Stack>
 					</Paper>
 				</Grid.Col>
 			</Grid>
+			<FlagModal 
+				userId={props.myId}
+				productToFlag={productOpenForFlag}
+				onAgree={() => {
+					loadFlags();
+					setProductOpenForFlag(undefined);
+				}}
+				onDisagree={() => setProductOpenForFlag(undefined)}
+				onClose={() => setProductOpenForFlag(undefined)}
+			/>
 		</Wrapper>
 	);
 }

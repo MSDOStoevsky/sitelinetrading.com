@@ -24,6 +24,8 @@ import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
 import { showNotification } from "@mantine/notifications";
 import { DateTime } from "luxon";
 import { InputButtonPair } from "../../components/InputButtonPair";
+import { FlagModal } from "../../components/FlagModal";
+import { getFlags } from "../../api/flagServlet";
 
 interface Props extends BaseProps {
 	myId: string;
@@ -42,6 +44,7 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 export function Listings(props: Props) {
 	const { classes } = useStyles();
 	const [isLoading, setIsLoading] = React.useState<boolean>(true);
+	const [productOpenForFlag, setProductOpenForFlag] = React.useState<string | undefined>(undefined);
 	const [confirmDeleteId, setConfirmDeleteId] = React.useState<
 		string | undefined
 	>(undefined);
@@ -50,6 +53,9 @@ export function Listings(props: Props) {
 	>(undefined);
 	const [listingData, setListingData] = React.useState<
 		undefined | ApiPaginatedSearchResponse<Product>
+	>(undefined);
+	const [flags, setFlags] = React.useState<
+		undefined | Array<{ productId: string }>
 	>(undefined);
 	const [searchExpresison, setSearchExpression] =
 		React.useState<SearchExpression>({
@@ -71,6 +77,10 @@ export function Listings(props: Props) {
 	  }, 500),
 		[]
 	  );
+
+	React.useEffect(() => {
+		loadFlags();
+	}, []);
 
 	React.useEffect(() => {
 		debouncedLoadProducts(searchExpresison);
@@ -142,6 +152,14 @@ export function Listings(props: Props) {
 			</Center>
 		);
 	}
+	
+	function loadFlags () {
+		props.myId && getFlags(props.myId).then((data) => {
+			console.log(data)
+			setFlags(data.data);
+		});
+	}
+
 	return (
 		<>
 			<Stack>
@@ -194,6 +212,7 @@ export function Listings(props: Props) {
 								>
 									<ListingCard
 										{...listing}
+										myId={props.myId}
 										isEditable={isThisMe}
 										onEdit={() =>
 											setListingDetails(listing)
@@ -201,6 +220,8 @@ export function Listings(props: Props) {
 										onDelete={() =>
 											setConfirmDeleteId(listing.id)
 										}
+										isFlagged={!!_.find(flags, (flag) => flag.productId === listing.id)}
+										onFlag={() => setProductOpenForFlag(listing.id)}
 										expiresIn={expiresInDays}
 									/>
 								</Grid.Col>
@@ -250,6 +271,16 @@ export function Listings(props: Props) {
 				listingDetails={listingDetails}
 				onClose={() => setListingDetails(undefined)}
 				onSubmit={() => loadProducts(searchExpresison)}
+			/>
+			<FlagModal
+				userId={props.myId}
+				productToFlag={productOpenForFlag}
+				onAgree={() => {
+					loadFlags();
+					setProductOpenForFlag(undefined);
+				}}
+				onDisagree={() => setProductOpenForFlag(undefined)}
+				onClose={() => setProductOpenForFlag(undefined)}
 			/>
 		</>
 	);

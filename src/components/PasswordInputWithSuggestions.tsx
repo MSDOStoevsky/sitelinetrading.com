@@ -52,7 +52,7 @@ export function PasswordInputWithSuggestions(props: Props) {
 	return (
 		<Popover
 			opened={popoverOpened}
-			position="bottom"
+			position="right"
 			width="target"
 			transition="pop"
 		>
